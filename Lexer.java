@@ -290,7 +290,7 @@ public class Lexer {
                 }
                 """;
 
-        List<Token> tokens = lexicalAnalyzer(inputCode); // Perform lexical analysis
+        List<Token> tokens = lexicalAnalyzer(input2); // Perform lexical analysis
 
         System.out.println("Tokens");
 
