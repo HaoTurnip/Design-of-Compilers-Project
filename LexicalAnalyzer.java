@@ -258,20 +258,21 @@ public class LexicalAnalyzer {
     }
 
     public static void main(String[] args) {
-        // String filePath = "C:\\Users\\Ahmed\\Desktop\\ya rab\\input.c"; // replace with your file path
-        // StringBuilder content = new StringBuilder();
-        // try {
-        //     Files.lines(Paths.get(filePath)).forEach(line -> content.append(line).append("\n"));
-        // } catch (IOException e) {
-        //     System.err.println("Error reading file " + filePath);
-        //     e.printStackTrace();
-        //     return;
-        // }
+        String filePath = "/Users/kareem/Documents/Design-of-Compilers-Project/input.c"; // replace with your file path
+        StringBuilder content = new StringBuilder();
+        try {
+            Files.lines(Paths.get(filePath)).forEach(line -> content.append(line).append("\n"));
+        } catch (IOException e) {
+            System.err.println("Error reading file " + filePath);
+            e.printStackTrace();
+            return;
+        }
 
-        String input = "int x ";
-        List<Token> tokens = lexicalAnalyzer(input);
-        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(tokens);
-        syntaxAnalyzer.parse();
+        //String input = "int x";
+
+        List<Token> tokens = lexicalAnalyzer(content.toString());
+        // SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(tokens);
+        // syntaxAnalyzer.parse();
         printTokens(tokens);
         printSymbolTable(tokens);
     }

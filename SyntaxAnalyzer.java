@@ -187,6 +187,8 @@ public class SyntaxAnalyzer {
     public String TYPE_SPECIFIER = "Keyword (int|float|char|double|short|long|signed|unsigned|void|String|bool)";
     // public String KEYWORD = "Keyword *";
     public String IDENTIFIER = "Identifier .*"; 
+    public String NUM = "Integer .* | Float .*";
+    
 
     private int currentTokenIndex;
     private List<LexicalAnalyzer.Token> tokens;
@@ -275,7 +277,6 @@ public class SyntaxAnalyzer {
                     advance();
                     // function declaration
                 }else {
-                    advance();
 
                     var_declaration();
 
@@ -295,7 +296,8 @@ public class SyntaxAnalyzer {
 
         if (match("Operator =")) {
             advance();
-           // expression();
+
+            expression();
         
            if ( match("Delimiter ;")) {
             advance();
@@ -306,6 +308,7 @@ public class SyntaxAnalyzer {
            }
             
         }else if (match("Delimiter ;")) {
+            advance();
             System.out.println("Variable declaration");
             return;
           
@@ -317,6 +320,365 @@ public class SyntaxAnalyzer {
 
 
     }
+
+    private void expression() {
+        conditional_expression();
+    }
+
+    private void conditional_expression() {
+        logical_or_expression(); 
+
+        // Check if the current token is the ternary operator '?'
+        if (match("Operator \\? ")) {
+            advance(); // Consume the '?' token
+
+            // Parse the expression for the true condition
+            expression();
+
+            // Check for the colon ':' token
+            if (match("Operator :")) {
+                advance();
+
+                expression();
+            } else {
+                System.err.println("Syntax error: Expected ':' after the true condition in ternary operator");
+            }
+        }   
+    }
+
+    private void logical_or_expression() {
+        logical_and_expression();
+
+        while (match("Operator \\|\\|")) {
+            advance(); // Consume the '||' token
+
+            // Check if there is a valid token after the logical OR operator
+            if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
+                logical_and_expression();
+            } else {
+                // Error handling: Expected identifier, number, or left parenthesis after logical OR operator
+                System.err.println("Syntax error: Expected identifier, number, or expression after logical OR operator");
+                return;
+            }
+        }
+    }
+
+    private void logical_and_expression() {
+       //equality_expression();
+
+        while (match("Operator &&")) {
+            advance(); // Consume the '&&' token
+
+            // Check if there is a valid token after the logical AND operator
+            if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
+                //equality_expression();
+            } else {
+                System.err.println("Syntax error: Expected identifier, number, or expression after logical AND operator");
+                return;
+            }
+        }
+    }
+
+    // private void equality_expression() {
+    //     relational_expression();
+
+    //     while (match(LexicalAnalyzer.TokenType.COMPARISON_OP) &&
+    //             (tokens.get(currentTokenIndex).data.equals("==") || tokens.get(currentTokenIndex).data.equals("!="))) {
+    //         advance(); // Consume the equality operator
+
+    //         // Check if there is a valid token after the comparison operator
+    //         if (match(LexicalAnalyzer.TokenType.ID) || match(LexicalAnalyzer.TokenType.NUMBER) || match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
+    //             // Valid token found, continue parsing the expression
+    //             relational_expression();
+    //         } else {
+    //             // Error handling: Expected identifier, number, or left parenthesis after comparison operator
+    //             System.err.println("Syntax error: Expected identifier, number, or expression after comparison operator");
+    //             return;
+    //         }
+    //     }
+    // }
+
+
+    // private void relational_expression() {
+    //     additive_expression();
+
+    //     while (match(LexicalAnalyzer.TokenType.COMPARISON_OP) &&
+    //             (tokens.get(currentTokenIndex).data.equals("<") || tokens.get(currentTokenIndex).data.equals("<=") ||
+    //                     tokens.get(currentTokenIndex).data.equals(">") || tokens.get(currentTokenIndex).data.equals(">="))) {
+    //         advance(); // Consume the relational operator
+
+    //         // Check if there is a valid token after the relational operator
+    //         if (match(LexicalAnalyzer.TokenType.ID) || match(LexicalAnalyzer.TokenType.NUMBER) || match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
+    //             // Valid token found, continue parsing the expression
+    //             additive_expression();
+    //         } else {
+    //             // Error handling: Expected identifier, number, or left parenthesis after relational operator
+    //             System.err.println("Syntax error: Expected identifier, number, or expression after relational operator");
+    //             return;
+    //         }
+    //     }
+    // }
+
+    // private void additive_expression() {
+    //     multiplicative_expression();
+
+    //     while (match(LexicalAnalyzer.TokenType.ARITHMETIC_OP) &&
+    //             (tokens.get(currentTokenIndex).data.equals("+") || tokens.get(currentTokenIndex).data.equals("-")))
+    //     {
+    //         advance(); // Consume the additive operator
+
+    //         // Check if there is a valid token after the additive operator
+    //         if (match(LexicalAnalyzer.TokenType.ID) || match(LexicalAnalyzer.TokenType.NUMBER) || match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
+    //             // Valid token found, continue parsing the expression
+    //             multiplicative_expression();
+    //         } else {
+    //             // Error handling: Expected identifier, number, or left parenthesis after additive operator
+    //             System.err.println("Syntax error: Expected identifier, number, or expression after additive operator");
+    //             return;
+    //         }
+    //     }
+    // }
+
+    // private void multiplicative_expression() {
+    //     unary_expression();
+
+    //     while (match(LexicalAnalyzer.TokenType.ARITHMETIC_OP) &&
+    //             (tokens.get(currentTokenIndex).data.equals("*") || tokens.get(currentTokenIndex).data.equals("/") ||
+    //                     tokens.get(currentTokenIndex).data.equals("%"))) {
+    //         advance(); // Consume the multiplicative operator
+
+    //         // Check if there is a valid token after the multiplicative operator
+    //         if (match(LexicalAnalyzer.TokenType.ID) || match(LexicalAnalyzer.TokenType.NUMBER) || match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
+    //             // Valid token found, continue parsing the expression
+    //             unary_expression();
+    //         } else {
+    //             // Error handling: Expected identifier, number, or left parenthesis after multiplicative operator
+    //             System.err.println("Syntax error: Expected identifier, number, or expression after multiplicative operator");
+    //             return;
+    //         }
+    //     }
+    // }
+
+    // private void unary_expression() {
+    //     if (match(LexicalAnalyzer.TokenType.ID) || match(LexicalAnalyzer.TokenType.NUMBER) || match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
+    //         primary_expression(); // Parse primary expression
+
+    //     } else if (match(LexicalAnalyzer.TokenType.ARITHMETIC_OP) &&
+    //             (tokens.get(currentTokenIndex).data.equals("+") || tokens.get(currentTokenIndex).data.equals("-"))) {
+    //         advance(); // Consume the unary operator
+
+    //         // Check if there is a valid token after the unary operator
+    //         if (match(LexicalAnalyzer.TokenType.ID) || match(LexicalAnalyzer.TokenType.NUMBER) || match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
+    //             // Valid token found, continue parsing the expression
+    //             unary_expression();
+    //         } else {
+    //             // Error handling: Expected identifier, number, or left parenthesis after unary operator
+    //             System.err.println("Syntax error: Expected identifier, number, or expression after unary operator");
+    //             return;
+    //         }
+    //     }
+    //     else if (match(LexicalAnalyzer.TokenType.UNARY_OP))
+    //     {
+
+    //         int prevIndex = currentTokenIndex - 1;
+    //         int nextIndex = currentTokenIndex + 1;
+    //         boolean isPrevIdentifier = prevIndex >= 0 && tokens.get(prevIndex).type == LexicalAnalyzer.TokenType.ID;
+    //         boolean isNextIdentifier = nextIndex < tokens.size() && tokens.get(nextIndex).type == LexicalAnalyzer.TokenType.ID;
+
+    //         System.out.println("TESTTT");
+
+    //         // Handle unary operators like '++' and '--'
+    //         String unaryOp = tokens.get(currentTokenIndex).data;
+    //         advance(); // Consume the unary operator
+
+    //         // Check if there is a valid token after the unary operator
+    //         if(!isPrevIdentifier && !isNextIdentifier)
+    //         {
+    //             System.err.println("Missing identifier");
+    //             System.exit(0);
+    //             return;
+
+    //         }
+    //         else if (match(LexicalAnalyzer.TokenType.ID)) {
+    //             // Consume the identifier token
+    //             advance();
+
+    //             // Parse the post-increment/decrement expression
+    //             System.out.println("Parsed post-" + unaryOp + " expression");
+    //         }
+    //         else if(match(LexicalAnalyzer.TokenType.ARITHMETIC_OP))
+    //         {
+
+
+
+    //             unary_expression();
+    //         }
+    //         else if (match(LexicalAnalyzer.TokenType.SEMICOLON))
+    //         {
+
+
+
+
+
+    //             return; // NO ITS NEEDED
+
+    //         }
+    //         else {
+
+    //             // Error handling: Expected identifier after unary operator
+
+    //            // System.err.println("Syntax error: Expected identifier after unary operator '" + unaryOp + "'");
+    //             return;
+    //         }
+    //     }
+    // }
+
+
+
+
+    // private void primary_expression()
+    // {
+
+    //     if (match(LexicalAnalyzer.TokenType.NUMBER)) {
+
+    //         advance(); // Consume the number token
+    //         arrayretract = false;
+    //     } else if (match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
+    //         advance(); // Consume the left parenthesis token
+    //         expression(); // Parse the enclosed expression
+    //         arrayretract = false;
+    //         if (match(LexicalAnalyzer.TokenType.RIGHT_PAREN)) {
+    //             advance(); // Consume the right parenthesis token
+    //             arrayretract = false;
+    //         } else {
+    //             // Error handling: Expected right parenthesis
+    //             System.err.println("Syntax error: Missing right parenthesis");
+    //             arrayretract = false;
+    //             System.exit(0);
+    //         }
+    //     } else if (match(LexicalAnalyzer.TokenType.ID)) {
+    //         // Check if it's a function call or a regular identifier
+    //         int currentIndex = currentTokenIndex; // Store current index
+    //         advance(); // Consume the identifier token
+    //         if (match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
+    //             // It's a function call
+    //             currentTokenIndex = currentIndex; // Reset index
+    //             arrayretract = false;
+    //             function_call(); // Parse function call
+    //         }
+    //         else if(match(LexicalAnalyzer.TokenType.LEFT_BRACKET))
+
+    //         {
+
+    //            inParenthesis = true; arrayretract = true;
+    //             retract();
+    //             array_call();
+
+
+    //         }
+
+
+
+    //         else {
+    //             // It's a regular identifier
+    //             currentTokenIndex = currentIndex; // Reset index
+    //             // Handle regular identifier logic here
+    //             advance(); // Consume the identifier token
+
+    //             // Check if the next token is a unary operator
+    //             if (match(LexicalAnalyzer.TokenType.UNARY_OP)) {
+    //                 arrayretract = false;
+    //                 // Handle unary expression
+    //                 unary_expression();
+    //             }
+    //         }
+    //     }
+    // }
+
+
+
+
+    // private void function_call() {
+    //     if (match(LexicalAnalyzer.TokenType.ID)) {
+
+    //         advance(); // Consume the identifier token
+    //     } else {
+    //         // Error handling: Expected identifier for function name
+    //         System.err.println("Syntax error: Expected identifier for function name in function call");
+    //         return;
+    //     }
+
+    //     // Check for left parenthesis
+    //     if (match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
+    //         advance(); // Consume the left parenthesis token
+
+    //     } else {
+    //         // Error handling: Expected left parenthesis
+    //         System.err.println("Syntax error: Expected '(' after function name in function call");
+    //         return;
+    //     }
+
+    //     // Parse the optional arguments
+
+    //     args_opt();
+
+    //     // Check for right parenthesis
+    //     if (match(LexicalAnalyzer.TokenType.RIGHT_PAREN)) {
+    //         advance(); // Consume the right parenthesis token
+
+    //         while (match(LexicalAnalyzer.TokenType.DOT)) {
+    //             advance(); // Consume the dot operator
+    //             // Repeat function call parsing for chaining
+    //             function_call();
+    //             retract();
+    //         }
+
+    //         if(match(LexicalAnalyzer.TokenType.SEMICOLON))
+    //         {
+    //             advance();
+    //         } else
+    //         {
+
+    //             System.err.println("Syntax error: Expected ';' after function call");
+    //         }
+
+
+    //     } else {
+    //         // Error handling: Expected right parenthesis
+    //         System.err.println("Syntax error: Expected ')' after function arguments in function call");
+    //     }
+    // }
+
+    // private void args_opt()
+    // {
+
+
+    //     if (match(LexicalAnalyzer.TokenType.ID) || match(LexicalAnalyzer.TokenType.NUMBER) || match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
+    //         System.out.println("Entering args_opt()");
+
+    //         args_list(); // Parse the arguments list
+    //     } else {
+    //         System.out.println("No arguments found in args_opt()");
+
+
+    //     }
+    // }
+
+    // private void args_list() {
+    //     System.out.println("Entering args_list()");
+
+
+
+
+    //         expression(); // Parse the first argument
+
+    //     // Check for more arguments separated by commas
+    //     if (match(LexicalAnalyzer.TokenType.COMMA)) {
+    //         advance(); // Consume the comma token
+    //         args_list(); // Parse the next argument
+    //     }
+    // }
+
  
 
 }
