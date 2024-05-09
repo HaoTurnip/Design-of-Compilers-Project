@@ -271,8 +271,8 @@ public class LexicalAnalyzer {
         //String input = "int x";
 
         List<Token> tokens = lexicalAnalyzer(content.toString());
-        // SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(tokens);
-        // syntaxAnalyzer.parse();
+        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(tokens);
+        syntaxAnalyzer.parse();
         printTokens(tokens);
         printSymbolTable(tokens);
     }

@@ -187,16 +187,31 @@ public class SyntaxAnalyzer {
     public String TYPE_SPECIFIER = "Keyword (int|float|char|double|short|long|signed|unsigned|void|String|bool)";
     // public String KEYWORD = "Keyword *";
     public String IDENTIFIER = "Identifier .*"; 
-    public String NUM = "Integer .* | Float .*";
+    public String NUM = "Integer| Float .*";
     
 
     private int currentTokenIndex;
     private List<LexicalAnalyzer.Token> tokens;
 
+    
+
+
+
+    boolean inStatement = false;
+    boolean inParenthesis = false;
+    boolean noarrayassign = false;
+    boolean arrayretract = false;
+
     public SyntaxAnalyzer(List<LexicalAnalyzer.Token> tokens) {
         this.tokens = tokens;
         this.currentTokenIndex = 0;
 
+    }
+
+
+    
+    private void retract() {
+        currentTokenIndex--;
     }
 
 
@@ -322,17 +337,17 @@ public class SyntaxAnalyzer {
     }
 
     private void expression() {
+        System.out.println("Entering expression()");
         conditional_expression();
     }
 
     private void conditional_expression() {
+        System.out.println("Entering conditional_expression()");
         logical_or_expression(); 
 
-        // Check if the current token is the ternary operator '?'
         if (match("Operator \\? ")) {
             advance(); // Consume the '?' token
 
-            // Parse the expression for the true condition
             expression();
 
             // Check for the colon ':' token
@@ -354,7 +369,7 @@ public class SyntaxAnalyzer {
 
             // Check if there is a valid token after the logical OR operator
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
-                logical_and_expression();
+                expression();
             } else {
                 // Error handling: Expected identifier, number, or left parenthesis after logical OR operator
                 System.err.println("Syntax error: Expected identifier, number, or expression after logical OR operator");
@@ -364,14 +379,14 @@ public class SyntaxAnalyzer {
     }
 
     private void logical_and_expression() {
-       //equality_expression();
+       equality_expression();
 
         while (match("Operator &&")) {
-            advance(); // Consume the '&&' token
+            advance(); 
 
             // Check if there is a valid token after the logical AND operator
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
-                //equality_expression();
+                expression();
             } else {
                 System.err.println("Syntax error: Expected identifier, number, or expression after logical AND operator");
                 return;
@@ -379,305 +394,306 @@ public class SyntaxAnalyzer {
         }
     }
 
-    // private void equality_expression() {
-    //     relational_expression();
-
-    //     while (match(LexicalAnalyzer.TokenType.COMPARISON_OP) &&
-    //             (tokens.get(currentTokenIndex).data.equals("==") || tokens.get(currentTokenIndex).data.equals("!="))) {
-    //         advance(); // Consume the equality operator
-
-    //         // Check if there is a valid token after the comparison operator
-    //         if (match(LexicalAnalyzer.TokenType.ID) || match(LexicalAnalyzer.TokenType.NUMBER) || match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
-    //             // Valid token found, continue parsing the expression
-    //             relational_expression();
-    //         } else {
-    //             // Error handling: Expected identifier, number, or left parenthesis after comparison operator
-    //             System.err.println("Syntax error: Expected identifier, number, or expression after comparison operator");
-    //             return;
-    //         }
-    //     }
-    // }
-
-
-    // private void relational_expression() {
-    //     additive_expression();
-
-    //     while (match(LexicalAnalyzer.TokenType.COMPARISON_OP) &&
-    //             (tokens.get(currentTokenIndex).data.equals("<") || tokens.get(currentTokenIndex).data.equals("<=") ||
-    //                     tokens.get(currentTokenIndex).data.equals(">") || tokens.get(currentTokenIndex).data.equals(">="))) {
-    //         advance(); // Consume the relational operator
-
-    //         // Check if there is a valid token after the relational operator
-    //         if (match(LexicalAnalyzer.TokenType.ID) || match(LexicalAnalyzer.TokenType.NUMBER) || match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
-    //             // Valid token found, continue parsing the expression
-    //             additive_expression();
-    //         } else {
-    //             // Error handling: Expected identifier, number, or left parenthesis after relational operator
-    //             System.err.println("Syntax error: Expected identifier, number, or expression after relational operator");
-    //             return;
-    //         }
-    //     }
-    // }
-
-    // private void additive_expression() {
-    //     multiplicative_expression();
-
-    //     while (match(LexicalAnalyzer.TokenType.ARITHMETIC_OP) &&
-    //             (tokens.get(currentTokenIndex).data.equals("+") || tokens.get(currentTokenIndex).data.equals("-")))
-    //     {
-    //         advance(); // Consume the additive operator
-
-    //         // Check if there is a valid token after the additive operator
-    //         if (match(LexicalAnalyzer.TokenType.ID) || match(LexicalAnalyzer.TokenType.NUMBER) || match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
-    //             // Valid token found, continue parsing the expression
-    //             multiplicative_expression();
-    //         } else {
-    //             // Error handling: Expected identifier, number, or left parenthesis after additive operator
-    //             System.err.println("Syntax error: Expected identifier, number, or expression after additive operator");
-    //             return;
-    //         }
-    //     }
-    // }
-
-    // private void multiplicative_expression() {
-    //     unary_expression();
-
-    //     while (match(LexicalAnalyzer.TokenType.ARITHMETIC_OP) &&
-    //             (tokens.get(currentTokenIndex).data.equals("*") || tokens.get(currentTokenIndex).data.equals("/") ||
-    //                     tokens.get(currentTokenIndex).data.equals("%"))) {
-    //         advance(); // Consume the multiplicative operator
-
-    //         // Check if there is a valid token after the multiplicative operator
-    //         if (match(LexicalAnalyzer.TokenType.ID) || match(LexicalAnalyzer.TokenType.NUMBER) || match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
-    //             // Valid token found, continue parsing the expression
-    //             unary_expression();
-    //         } else {
-    //             // Error handling: Expected identifier, number, or left parenthesis after multiplicative operator
-    //             System.err.println("Syntax error: Expected identifier, number, or expression after multiplicative operator");
-    //             return;
-    //         }
-    //     }
-    // }
-
-    // private void unary_expression() {
-    //     if (match(LexicalAnalyzer.TokenType.ID) || match(LexicalAnalyzer.TokenType.NUMBER) || match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
-    //         primary_expression(); // Parse primary expression
-
-    //     } else if (match(LexicalAnalyzer.TokenType.ARITHMETIC_OP) &&
-    //             (tokens.get(currentTokenIndex).data.equals("+") || tokens.get(currentTokenIndex).data.equals("-"))) {
-    //         advance(); // Consume the unary operator
-
-    //         // Check if there is a valid token after the unary operator
-    //         if (match(LexicalAnalyzer.TokenType.ID) || match(LexicalAnalyzer.TokenType.NUMBER) || match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
-    //             // Valid token found, continue parsing the expression
-    //             unary_expression();
-    //         } else {
-    //             // Error handling: Expected identifier, number, or left parenthesis after unary operator
-    //             System.err.println("Syntax error: Expected identifier, number, or expression after unary operator");
-    //             return;
-    //         }
-    //     }
-    //     else if (match(LexicalAnalyzer.TokenType.UNARY_OP))
-    //     {
-
-    //         int prevIndex = currentTokenIndex - 1;
-    //         int nextIndex = currentTokenIndex + 1;
-    //         boolean isPrevIdentifier = prevIndex >= 0 && tokens.get(prevIndex).type == LexicalAnalyzer.TokenType.ID;
-    //         boolean isNextIdentifier = nextIndex < tokens.size() && tokens.get(nextIndex).type == LexicalAnalyzer.TokenType.ID;
+    private void equality_expression() {
+        relational_expression();
+
+        while (match("Operator ==") || match("Operator !=")) {
+            advance(); 
+
+            if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
+                expression();
+            } else {
+                // Error handling: Expected identifier, number, or left parenthesis after comparison operator
+                System.err.println("Syntax error: Expected identifier, number, or expression after comparison operator");
+                return;
+            }
+        }
+    }
+
+
+    private void relational_expression() {
+        additive_expression();
+
+        while (match("Operator <") || match("Operator >") || match("Operator <=") || match("Operator >=")) {
+            advance(); // Consume the relational operator
+
+            // Check if there is a valid token after the relational operator
+            if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
+                // Valid token found, continue parsing the expression
+                expression();
+            } else {
+                // Error handling: Expected identifier, number, or left parenthesis after relational operator
+                System.err.println("Syntax error: Expected identifier, number, or expression after relational operator");
+                return;
+            }
+        }
+    }
+
+    private void additive_expression() {
+        multiplicative_expression();
+
+        while (match("Operator \\+") || match("Operator -")) {
+           
+            advance(); // Consume the additive operator
+
+            // Check if there is a valid token after the additive operator
+            if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
+                // Valid token found, continue parsing the expression
+                multiplicative_expression();
+            } else {
+                // Error handling: Expected identifier, number, or left parenthesis after additive operator
+                System.err.println("Syntax error: Expected identifier, number, or expression after additive operator");
+                return;
+            }
+        }
+    }
+
+    private void multiplicative_expression() {
+        unary_expression();
+
+        while (match("Operator \\*") || match("Operator /") || match("Operator %")){
+            advance(); // Consume the multiplicative operator
+
+            if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")){
+                // Valid token found, continue parsing the expression
+                unary_expression();
+            } else {
+                // Error handling: Expected identifier, number, or left parenthesis after multiplicative operator
+                System.err.println("Syntax error: Expected identifier, number, or expression after multiplicative operator");
+                return;
+            }
+        }
+    }
+
+    private void unary_expression() {
+        System.out.println("Entering unary_expression()");
+        System.out.println("Unary expression debug x: " + tokens.get(currentTokenIndex).value + " " + tokens.get(currentTokenIndex).type );
+
+        if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
+            System.out.println("Parsed primary expression");
+            primary_expression(); 
+
+        } else if (match("Operator \\+") || match("Operator -") || match("Operator ~") || match("Operator !") || match("Operator \\*") || match("Operator &") || match("Operator sizeof")) {
+            advance(); // Consume the unary operator
+
+            // Check if there is a valid token after the unary operator
+            if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
+                // Valid token found, continue parsing the expression
+                unary_expression();
+            } else {
+                // Error handling: Expected identifier, number, or left parenthesis after unary operator
+                System.err.println("Syntax error: Expected identifier, number, or expression after unary operator");
+                return;
+            }
+        }
+        else if (match("Operator \\+\\+") || match("Operator --")) 
+        {
+
+            int prevIndex = currentTokenIndex - 1;
+            int nextIndex = currentTokenIndex + 1;
+            boolean isPrevIdentifier = prevIndex >= 0 && tokens.get(prevIndex).type.matches(IDENTIFIER);
+            boolean isNextIdentifier = nextIndex < tokens.size() && tokens.get(nextIndex).type.matches(IDENTIFIER);
+
+            System.out.println("TESTTT");
 
-    //         System.out.println("TESTTT");
+            // Handle unary operators like '++' and '--'
+            String unaryOp = tokens.get(currentTokenIndex).value;
+            advance(); // Consume the unary operator
 
-    //         // Handle unary operators like '++' and '--'
-    //         String unaryOp = tokens.get(currentTokenIndex).data;
-    //         advance(); // Consume the unary operator
+            // Check if there is a valid token after the unary operator
+            if(!isPrevIdentifier && !isNextIdentifier)
+            {
+                System.err.println("Missing identifier");
+                System.exit(0);
+                return;
 
-    //         // Check if there is a valid token after the unary operator
-    //         if(!isPrevIdentifier && !isNextIdentifier)
-    //         {
-    //             System.err.println("Missing identifier");
-    //             System.exit(0);
-    //             return;
+            }
+            else if (match(IDENTIFIER)) {
+                // Consume the identifier token
+                advance();
 
-    //         }
-    //         else if (match(LexicalAnalyzer.TokenType.ID)) {
-    //             // Consume the identifier token
-    //             advance();
+                // Parse the post-increment/decrement expression
+                System.out.println("Parsed post-" + unaryOp + " expression");
+            }
+            // Arithmtic op
+        else if(match(" Operator \\+ ") || match(" Operator - ") || match(" Operator * ") || match(" Operator / ") || match(" Operator % "))
+            {
 
-    //             // Parse the post-increment/decrement expression
-    //             System.out.println("Parsed post-" + unaryOp + " expression");
-    //         }
-    //         else if(match(LexicalAnalyzer.TokenType.ARITHMETIC_OP))
-    //         {
 
 
+                unary_expression();
+            }
+            else if (match("Delimeter ;"))
+            {
 
-    //             unary_expression();
-    //         }
-    //         else if (match(LexicalAnalyzer.TokenType.SEMICOLON))
-    //         {
 
 
 
 
+                return; // NO ITS NEEDED
 
-    //             return; // NO ITS NEEDED
+            }
+            else {
 
-    //         }
-    //         else {
+                // Error handling: Expected identifier after unary operator
 
-    //             // Error handling: Expected identifier after unary operator
+               // System.err.println("Syntax error: Expected identifier after unary operator '" + unaryOp + "'");
+                return;
+            }
+        }
+    }
 
-    //            // System.err.println("Syntax error: Expected identifier after unary operator '" + unaryOp + "'");
-    //             return;
-    //         }
-    //     }
-    // }
 
 
 
+    private void primary_expression()
+    {
+        System.out.println("Entering primary_expression()");
 
-    // private void primary_expression()
-    // {
+        if (match(NUM)) {
 
-    //     if (match(LexicalAnalyzer.TokenType.NUMBER)) {
+            System.out.println("Parsed number: " + tokens.get(currentTokenIndex).value);
+            advance(); // Consume the number token
+            System.out.println("Current token index: " + currentTokenIndex);
 
-    //         advance(); // Consume the number token
-    //         arrayretract = false;
-    //     } else if (match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
-    //         advance(); // Consume the left parenthesis token
-    //         expression(); // Parse the enclosed expression
-    //         arrayretract = false;
-    //         if (match(LexicalAnalyzer.TokenType.RIGHT_PAREN)) {
-    //             advance(); // Consume the right parenthesis token
-    //             arrayretract = false;
-    //         } else {
-    //             // Error handling: Expected right parenthesis
-    //             System.err.println("Syntax error: Missing right parenthesis");
-    //             arrayretract = false;
-    //             System.exit(0);
-    //         }
-    //     } else if (match(LexicalAnalyzer.TokenType.ID)) {
-    //         // Check if it's a function call or a regular identifier
-    //         int currentIndex = currentTokenIndex; // Store current index
-    //         advance(); // Consume the identifier token
-    //         if (match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
-    //             // It's a function call
-    //             currentTokenIndex = currentIndex; // Reset index
-    //             arrayretract = false;
-    //             function_call(); // Parse function call
-    //         }
-    //         else if(match(LexicalAnalyzer.TokenType.LEFT_BRACKET))
+            arrayretract = false;
+        } else if (match("Delimiter \\(")) {
+            advance(); // Consume the left parenthesis token
+            expression(); // Parse the enclosed expression
+            arrayretract = false;
+            if (match("Delimiter \\)")) {
+                advance(); // Consume the right parenthesis token
+                arrayretract = false;
+            } else {
+                // Error handling: Expected right parenthesis
+                System.err.println("Syntax error: Missing right parenthesis");
+                arrayretract = false;
+                System.exit(0);
+            }
+        } else if (match(IDENTIFIER)) {
+            // Check if it's a function call or a regular identifier
+            int currentIndex = currentTokenIndex; // Store current index
+            advance(); // Consume the identifier token
+            if (match("Delimiter \\(")) {
+                // It's a function call
+                currentTokenIndex = currentIndex; // Reset index
+                arrayretract = false;
+                function_call(); // Parse function call
+            }
+            else if(match("Delimiter \\["))
 
-    //         {
+            {
 
-    //            inParenthesis = true; arrayretract = true;
-    //             retract();
-    //             array_call();
+               inParenthesis = true; arrayretract = true;
+                retract();
+                //array_call();
 
 
-    //         }
+            }
 
 
 
-    //         else {
-    //             // It's a regular identifier
-    //             currentTokenIndex = currentIndex; // Reset index
-    //             // Handle regular identifier logic here
-    //             advance(); // Consume the identifier token
+            else {
+                // It's a regular identifier
+                currentTokenIndex = currentIndex; // Reset index
+                // Handle regular identifier logic here
 
-    //             // Check if the next token is a unary operator
-    //             if (match(LexicalAnalyzer.TokenType.UNARY_OP)) {
-    //                 arrayretract = false;
-    //                 // Handle unary expression
-    //                 unary_expression();
-    //             }
-    //         }
-    //     }
-    // }
+                System.out.println("Parsed identifier: " + tokens.get(currentIndex).value);
+                advance(); // Consume the identifier token
 
+                // Check if the next token is a unary operator
+                if (match("Operator \\+\\+") || match("Operator --")) {
+                    arrayretract = false;
+                    // Handle unary expression
+                    unary_expression();
+                }
+            }
+        }
+    }
 
 
 
-    // private void function_call() {
-    //     if (match(LexicalAnalyzer.TokenType.ID)) {
 
-    //         advance(); // Consume the identifier token
-    //     } else {
-    //         // Error handling: Expected identifier for function name
-    //         System.err.println("Syntax error: Expected identifier for function name in function call");
-    //         return;
-    //     }
+    private void function_call() {
+        if (match(IDENTIFIER)) {
 
-    //     // Check for left parenthesis
-    //     if (match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
-    //         advance(); // Consume the left parenthesis token
+            advance(); // Consume the identifier token
+        } else {
+            // Error handling: Expected identifier for function name
+            System.err.println("Syntax error: Expected identifier for function name in function call");
+            return;
+        }
 
-    //     } else {
-    //         // Error handling: Expected left parenthesis
-    //         System.err.println("Syntax error: Expected '(' after function name in function call");
-    //         return;
-    //     }
+        // Check for left parenthesis
+        if (match( "Delimiter \\(")) {
+            advance(); // Consume the left parenthesis token
 
-    //     // Parse the optional arguments
+        } else {
+            // Error handling: Expected left parenthesis
+            System.err.println("Syntax error: Expected '(' after function name in function call");
+            return;
+        }
 
-    //     args_opt();
+        // Parse the optional arguments
 
-    //     // Check for right parenthesis
-    //     if (match(LexicalAnalyzer.TokenType.RIGHT_PAREN)) {
-    //         advance(); // Consume the right parenthesis token
+        args_opt();
 
-    //         while (match(LexicalAnalyzer.TokenType.DOT)) {
-    //             advance(); // Consume the dot operator
-    //             // Repeat function call parsing for chaining
-    //             function_call();
-    //             retract();
-    //         }
+        // Check for right parenthesis
+        if (match( "Delimiter \\)")) {
+            advance(); // Consume the right parenthesis token
 
-    //         if(match(LexicalAnalyzer.TokenType.SEMICOLON))
-    //         {
-    //             advance();
-    //         } else
-    //         {
+            while (match("Delemiter \\.")) {
+                advance(); // Consume the dot operator
+                // Repeat function call parsing for chaining
+                function_call();
+                retract();
+            }
 
-    //             System.err.println("Syntax error: Expected ';' after function call");
-    //         }
+            if(match("Delimiter ;"))
+            {
+                advance();
+            } else
+            {
 
+                System.err.println("Syntax error: Expected ';' after function call");
+            }
 
-    //     } else {
-    //         // Error handling: Expected right parenthesis
-    //         System.err.println("Syntax error: Expected ')' after function arguments in function call");
-    //     }
-    // }
 
-    // private void args_opt()
-    // {
+        } else {
+            // Error handling: Expected right parenthesis
+            System.err.println("Syntax error: Expected ')' after function arguments in function call");
+        }
+    }
 
+    private void args_opt()
+    {
 
-    //     if (match(LexicalAnalyzer.TokenType.ID) || match(LexicalAnalyzer.TokenType.NUMBER) || match(LexicalAnalyzer.TokenType.LEFT_PAREN)) {
-    //         System.out.println("Entering args_opt()");
 
-    //         args_list(); // Parse the arguments list
-    //     } else {
-    //         System.out.println("No arguments found in args_opt()");
+        if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
+            System.out.println("Entering args_opt()");
 
+            args_list(); // Parse the arguments list
+        } else {
+            System.out.println("No arguments found in args_opt()");
 
-    //     }
-    // }
 
-    // private void args_list() {
-    //     System.out.println("Entering args_list()");
+        }
+    }
 
+    private void args_list() {
+        System.out.println("Entering args_list()");
 
 
 
-    //         expression(); // Parse the first argument
 
-    //     // Check for more arguments separated by commas
-    //     if (match(LexicalAnalyzer.TokenType.COMMA)) {
-    //         advance(); // Consume the comma token
-    //         args_list(); // Parse the next argument
-    //     }
-    // }
+            expression(); // Parse the first argument
+
+        // Check for more arguments separated by commas
+        if (match("Delimiter ,")) {
+            advance(); // Consume the comma token
+            args_list(); // Parse the next argument
+        }
+    }
 
  
 
