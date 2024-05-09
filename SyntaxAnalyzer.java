@@ -184,7 +184,7 @@ argument_expression_list : assignment_expression
  **/
 
 public class SyntaxAnalyzer {
-    public String TYPE_SPECIFIER = "Keyword (int|float|char|double|short|long|signed|unsigned|void|String|bool)";
+    public String TYPE_SPECIFIER = "Keyword (int|float|char|double|short|long|signed|unsigned|void|String|bool|struct|enum|typedef)";
     // public String KEYWORD = "Keyword *";
     public String IDENTIFIER = "Identifier .*"; 
     public String NUM = "Integer| Float .*";
@@ -256,7 +256,7 @@ public class SyntaxAnalyzer {
 
     private void declaration_list() {
 
-        if (match(TYPE_SPECIFIER)) {
+        if (match(TYPE_SPECIFIER) ) {
             
             declaration();
             declaration_list();
@@ -268,12 +268,7 @@ public class SyntaxAnalyzer {
     }
 
     private void declaration() {
-
-        // while (match(KEYWORD)) {
-        //     advance();       
-        // }
-
-        if (match(TYPE_SPECIFIER)) {
+        if (match(TYPE_SPECIFIER) && !tokens.get(currentTokenIndex).value.equals("struct") && !tokens.get(currentTokenIndex).value.equals("enum") && !tokens.get(currentTokenIndex).value.equals("typedef") ) {
             advance();
           if (match(IDENTIFIER)) {
                 advance();
@@ -300,13 +295,115 @@ public class SyntaxAnalyzer {
                 }
             }
 
-        }else {
+        } else if (match("Keyword struct") && tokens.get(currentTokenIndex).value.equals("struct")) {
+            System.out.println("Struct declarasdsdsdajkajlajlalkjtion");
+            advance();
+            // struct declaration
+            struct_declaration();
+        } else if (match("Keyword enum")  && tokens.get(currentTokenIndex).value.equals("enum") ) {
+            System.out.println("Enum declaration");
+            advance();
+            // enum declaration
+            enum_declaration();
+        } else if (match("Keyword typedef") && tokens.get(currentTokenIndex).value.equals("typedef")) {
+            advance();
+            // typedef declaration
+        }
+
+        else {
             System.out.println("Invalid Declaration");
             return;
         }
   
     }
 
+
+    private void struct_declaration() {
+        
+            if (match(IDENTIFIER)) {
+                advance();
+                System.out.println("Strussdsdct i am her");
+
+                if (match("Delimiter \\{")) {
+                    System.out.println("Struct i am her");
+                    advance();
+                    struct_var_declaration_list();
+                    if (match("Delimiter \\}")) {
+                        advance();
+                        if (match("Delimiter ;")) {
+                            advance();
+                            System.out.println("Struct declaration");
+                        } else {
+                            System.out.println("Syntax Error missing ;");
+                        }
+                    } else {
+                        System.out.println("Syntax Error missing }");
+                    }
+                } else {
+                    System.out.println("Syntax Error missing {");
+                }
+            } else {
+                System.out.println("Syntax Error missing identifier");
+            }
+        
+    }
+
+    private void struct_var_declaration_list() {
+        if (match(TYPE_SPECIFIER)) {
+            declaration();
+            struct_var_declaration_list();
+        } else {
+            return;
+        }
+    }
+
+
+    private void enum_declaration() {
+        System.out.println("Entering enum_declaration()");
+        System.out.println("Current token index: " + tokens.get(currentTokenIndex).value + " " + tokens.get(currentTokenIndex).type );
+
+            if (match("Delimiter \\{")) {
+                advance();
+                enum_var_list();
+                if (match("Delimiter \\}")) {
+                    advance();
+                    if (match("Delimiter ;")) {
+                        advance();
+                        System.out.println("Enum declaration Done");
+                    } else {
+                        System.out.println("Syntax Error missing ;");
+                    }
+                } else {
+                    System.out.println("Syntax Error missing }");
+                }
+            } else {
+                System.out.println("Syntax Error missing {");
+            }
+        } 
+
+    
+
+    private void enum_var_list() {
+        if (match(IDENTIFIER)) {
+            advance();
+
+            if ( match("Operator =")) {
+                advance();
+                expression();
+            } else {
+                return;
+            }
+
+            if (match("Delimiter ,")) {
+                advance();
+                enum_var_list();
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+    }
     private void var_declaration() {
 
         if (match("Operator =")) {
@@ -369,7 +466,7 @@ public class SyntaxAnalyzer {
 
             // Check if there is a valid token after the logical OR operator
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
-                expression();
+                logical_and_expression();
             } else {
                 // Error handling: Expected identifier, number, or left parenthesis after logical OR operator
                 System.err.println("Syntax error: Expected identifier, number, or expression after logical OR operator");
@@ -386,7 +483,7 @@ public class SyntaxAnalyzer {
 
             // Check if there is a valid token after the logical AND operator
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
-                expression();
+                equality_expression();
             } else {
                 System.err.println("Syntax error: Expected identifier, number, or expression after logical AND operator");
                 return;
@@ -401,7 +498,7 @@ public class SyntaxAnalyzer {
             advance(); 
 
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
-                expression();
+                relational_expression();
             } else {
                 // Error handling: Expected identifier, number, or left parenthesis after comparison operator
                 System.err.println("Syntax error: Expected identifier, number, or expression after comparison operator");
@@ -420,7 +517,7 @@ public class SyntaxAnalyzer {
             // Check if there is a valid token after the relational operator
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
                 // Valid token found, continue parsing the expression
-                expression();
+                additive_expression();
             } else {
                 // Error handling: Expected identifier, number, or left parenthesis after relational operator
                 System.err.println("Syntax error: Expected identifier, number, or expression after relational operator");
@@ -428,7 +525,6 @@ public class SyntaxAnalyzer {
             }
         }
     }
-
     private void additive_expression() {
         multiplicative_expression();
 
@@ -509,7 +605,7 @@ public class SyntaxAnalyzer {
 
             }
             else if (match(IDENTIFIER)) {
-                // Consume the identifier token
+                
                 advance();
 
                 // Parse the post-increment/decrement expression
@@ -558,7 +654,7 @@ public class SyntaxAnalyzer {
 
             arrayretract = false;
         } else if (match("Delimiter \\(")) {
-            advance(); // Consume the left parenthesis token
+            advance(); 
             expression(); // Parse the enclosed expression
             arrayretract = false;
             if (match("Delimiter \\)")) {
@@ -573,7 +669,7 @@ public class SyntaxAnalyzer {
         } else if (match(IDENTIFIER)) {
             // Check if it's a function call or a regular identifier
             int currentIndex = currentTokenIndex; // Store current index
-            advance(); // Consume the identifier token
+            advance(); 
             if (match("Delimiter \\(")) {
                 // It's a function call
                 currentTokenIndex = currentIndex; // Reset index
@@ -586,7 +682,6 @@ public class SyntaxAnalyzer {
 
                inParenthesis = true; arrayretract = true;
                 retract();
-                //array_call();
 
 
             }
@@ -599,7 +694,7 @@ public class SyntaxAnalyzer {
                 // Handle regular identifier logic here
 
                 System.out.println("Parsed identifier: " + tokens.get(currentIndex).value);
-                advance(); // Consume the identifier token
+                advance(); 
 
                 // Check if the next token is a unary operator
                 if (match("Operator \\+\\+") || match("Operator --")) {
@@ -617,16 +712,15 @@ public class SyntaxAnalyzer {
     private void function_call() {
         if (match(IDENTIFIER)) {
 
-            advance(); // Consume the identifier token
+            advance(); 
         } else {
-            // Error handling: Expected identifier for function name
             System.err.println("Syntax error: Expected identifier for function name in function call");
             return;
         }
 
         // Check for left parenthesis
         if (match( "Delimiter \\(")) {
-            advance(); // Consume the left parenthesis token
+            advance(); 
 
         } else {
             // Error handling: Expected left parenthesis
@@ -634,7 +728,7 @@ public class SyntaxAnalyzer {
             return;
         }
 
-        // Parse the optional arguments
+        
 
         args_opt();
 

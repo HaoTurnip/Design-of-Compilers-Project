@@ -1,1 +1,10 @@
-int x = 5 + 23 - 50 * 2 / 5 % 3;
+// array
+struct input
+{
+    int x;
+};
+
+enum
+{
+    INPUT_SIZE = 10
+};
