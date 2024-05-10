@@ -336,15 +336,23 @@ public class SyntaxAnalyzer {
                             System.out.println("Struct declaration");
                         } else {
                             System.out.println("Syntax Error missing ;");
+                            System.exit(1); // Exit with error code 1
+
                         }
                     } else {
                         System.out.println("Syntax Error missing }");
+                        System.exit(1); // Exit with error code 1
+
                     }
                 } else {
                     System.out.println("Syntax Error missing {");
+                    System.exit(1); // Exit with error code 1
+
                 }
             } else {
                 System.out.println("Syntax Error missing identifier");
+                System.exit(1); // Exit with error code 1
+
             }
         
     }
@@ -362,15 +370,24 @@ public class SyntaxAnalyzer {
                         compound_stmt();
                     } else {
                         System.out.println("Syntax Error missing )");
+                        System.exit(1); // Exit with error code 1
+
                     }
                 } else {
                     System.out.println("Syntax Error missing (");
+                    System.exit(1); // Exit with error code 1
+
                 }
             } else {
                 System.out.println("Syntax Error missing identifier");
+                System.exit(1); // Exit with error code 1
+
             }
+
         } else {
             System.out.println("Syntax Error missing type specifier");
+            System.exit(1); // Exit with error code 1
+
         }
     }
 
@@ -405,13 +422,19 @@ public class SyntaxAnalyzer {
                         advance();
                     } else {
                         System.out.println("Syntax Error missing ]");
+                        System.exit(1); // Exit with error code 1
+
                     }
                 }
             } else {
                 System.out.println("Syntax Error missing identifier");
+                System.exit(1); // Exit with error code 1
+
             }
         } else {
             System.out.println("Syntax Error missing type specifier");
+            System.exit(1); // Exit with error code 1
+
         }
     }
 
@@ -424,15 +447,17 @@ public class SyntaxAnalyzer {
                 advance();
                 System.out.println("Function declaration Done");
             } else {
-                System.out.println("Syntax Error missing }");
+                System.err.println("Syntax Error missing }");
             }
         } else {
-            System.out.println("Syntax Error missing {");
+            System.err.println("Syntax Error missing {");
+            System.exit(1); // Exit with error code 1
+
         }
     }
 
     private void statement_list() {
-        if (match(TYPE_SPECIFIER) || match(IDENTIFIER)) {
+        if (match(TYPE_SPECIFIER) || match(IDENTIFIER) || match("Keyword if") || match("Keyword while") || match("Keyword for") || match("Keyword do") || match("Keyword return") || match("Delimiter \\{" )) {
             System.out.println("---------------------------------------------------------------------------Statement list");
             statement();
             statement_list();
@@ -448,20 +473,24 @@ public class SyntaxAnalyzer {
             advance();  
            var_declaration();
             } else {
-                System.out.println("Syntax Error missing identifier");
+                System.err.println("Syntax Error missing identifier");
             }
         } else if (match(IDENTIFIER)) {
             expression_stmt();
         } else if (match("Keyword if")) {
+            System.out.println("Selection statement entered");
             selection_stmt();
         } else if (match("Keyword while") || match("Keyword for") || match("Keyword do")) {
+            System.err.println("Iteration statement entered");
             iteration_stmt();
         } else if (match("Keyword return")) {
             return_stmt();
         } else if (match("Delimiter \\{")) {
             compound_stmt();
         } else {
-            System.out.println("Syntax Error missing statement");
+            System.err.println("Syntax Error missing statement");
+            System.exit(1); // Exit with error code 1
+
         }
     }
 
@@ -473,7 +502,9 @@ public class SyntaxAnalyzer {
             if (match("Delimiter ;")) {
                 advance();
             } else {
-                System.out.println("Syntax Error missing ;");
+                System.err.println("Syntax Error missing ;");
+                System.exit(1); // Exit with error code 1
+
             }
         }
     }
@@ -492,13 +523,13 @@ public class SyntaxAnalyzer {
                         statement();
                     }
                 } else {
-                    System.out.println("Syntax Error missing )");
+                     System.err.println("Syntax Error missing )");
                 }
             } else {
-                System.out.println("Syntax Error missing (");
+                 System.err.println("Syntax Error missing (");
             }
         } else {
-            System.out.println("Syntax Error missing if");
+             System.err.println("Syntax Error missing if");
         }
     }
 
@@ -522,17 +553,50 @@ public class SyntaxAnalyzer {
             advance();
             if (match("Delimiter \\(")) {
                 advance();
-                expression_stmt();
-                expression();
+
+                if (match(TYPE_SPECIFIER)){
+                    advance();
+                    if (match(IDENTIFIER)){
+                        advance();
+                        var_declaration();
+                        retract();
+                    } else {
+                        System.err.println("Syntax Error missing identifier");
+                        System.exit(1); // Exit with error code 1
+
+                        return;
+
+                    }
+
+                }else {
+                    System.err.println("Syntax Error missing type specifier");
+                    System.exit(1); // Exit with error code 1
+
+                    return;
+
+                }
+
+               
                 if (match("Delimiter ;")) {
                     advance();
                     expression();
+
+                    if (match("Delimiter ;")) {
+                        advance();
+                        expression();
+                    } else {
+                        System.out.println("Syntax Error missing ;");
+                    }
+
                     if (match("Delimiter \\)")) {
+                        System.out.println("For loop done");
                         advance();
                         statement();
                     } else {
-                        System.out.println("Syntax Error missing )");
+                        System.err.println("Syntax error: Expected ')' after for loop condition" );
+                        
                     }
+
                 } else {
                     System.out.println("Syntax Error missing ;");
                 }
@@ -653,6 +717,7 @@ public class SyntaxAnalyzer {
             
            }else {
                System.out.println("Syntax Error missing in assignment  ;");
+               System.exit(1);
            }
             
         }else if (match("Delimiter ;")) {
@@ -690,6 +755,8 @@ public class SyntaxAnalyzer {
                 expression();
             } else {
                 System.err.println("Syntax error: Expected ':' after the true condition in ternary operator");
+                System.exit(1);
+
             }
         }   
     }
@@ -706,6 +773,8 @@ public class SyntaxAnalyzer {
             } else {
                 // Error handling: Expected identifier, number, or left parenthesis after logical OR operator
                 System.err.println("Syntax error: Expected identifier, number, or expression after logical OR operator");
+                System.exit(1);
+
                 return;
             }
         }
@@ -722,6 +791,8 @@ public class SyntaxAnalyzer {
                 equality_expression();
             } else {
                 System.err.println("Syntax error: Expected identifier, number, or expression after logical AND operator");
+                System.exit(1);
+
                 return;
             }
         }
@@ -792,6 +863,8 @@ public class SyntaxAnalyzer {
             } else {
                 // Error handling: Expected identifier, number, or left parenthesis after multiplicative operator
                 System.err.println("Syntax error: Expected identifier, number, or expression after multiplicative operator");
+                System.exit(1);
+
                 return;
             }
         }
@@ -815,6 +888,8 @@ public class SyntaxAnalyzer {
             } else {
                 // Error handling: Expected identifier, number, or left parenthesis after unary operator
                 System.err.println("Syntax error: Expected identifier, number, or expression after unary operator");
+                System.exit(1);
+
                 return;
             }
         }
@@ -828,7 +903,6 @@ public class SyntaxAnalyzer {
 
             System.out.println("TESTTT");
 
-            // Handle unary operators like '++' and '--'
             String unaryOp = tokens.get(currentTokenIndex).value;
             advance(); // Consume the unary operator
 
@@ -986,12 +1060,16 @@ public class SyntaxAnalyzer {
             {
 
                 System.err.println("Syntax error: Expected ';' after function call");
+                System.exit(1);
+
             }
 
 
         } else {
             // Error handling: Expected right parenthesis
             System.err.println("Syntax error: Expected ')' after function arguments in function call");
+            System.exit(1);
+
         }
     }
 
@@ -1005,6 +1083,7 @@ public class SyntaxAnalyzer {
             args_list(); // Parse the arguments list
         } else {
             System.out.println("No arguments found in args_opt()");
+            
 
 
         }

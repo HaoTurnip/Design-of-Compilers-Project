@@ -3,6 +3,14 @@
 
 int main() {
 
-int x = 0;
+    for (int i = 0 i < count; i++)
+    {
+        int a = 0;
+    }
+    
+
+ 
+    
+
 
 }
