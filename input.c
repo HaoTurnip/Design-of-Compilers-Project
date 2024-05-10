@@ -1,10 +1,8 @@
 // array
-struct input
-{
-    int x;
-};
 
-enum
-{
-    INPUT_SIZE = 10
-};
+
+int main() {
+
+int x = 0;
+
+}

@@ -284,8 +284,11 @@ public class SyntaxAnalyzer {
                     // pointer declaration
 
                 } else if (match("Delimiter \\(")) {
-                    advance();
-                    // function declaration
+                    System.out.println("Function declaration in var dec");
+                    currentTokenIndex = 0;
+
+                    fun_declaration();
+             
                 }else {
 
                     var_declaration();
@@ -296,14 +299,11 @@ public class SyntaxAnalyzer {
             }
 
         } else if (match("Keyword struct") && tokens.get(currentTokenIndex).value.equals("struct")) {
-            System.out.println("Struct declarasdsdsdajkajlajlalkjtion");
             advance();
-            // struct declaration
             struct_declaration();
         } else if (match("Keyword enum")  && tokens.get(currentTokenIndex).value.equals("enum") ) {
             System.out.println("Enum declaration");
             advance();
-            // enum declaration
             enum_declaration();
         } else if (match("Keyword typedef") && tokens.get(currentTokenIndex).value.equals("typedef")) {
             advance();
@@ -316,6 +316,7 @@ public class SyntaxAnalyzer {
         }
   
     }
+    
 
 
     private void struct_declaration() {
@@ -348,6 +349,243 @@ public class SyntaxAnalyzer {
         
     }
 
+    private void fun_declaration() {
+        if (match(TYPE_SPECIFIER)) {
+            advance();
+            if (match(IDENTIFIER)) {
+                advance();
+                if (match("Delimiter \\(")) {
+                    advance();
+                    params();
+                    if (match("Delimiter \\)")) {
+                        advance();
+                        compound_stmt();
+                    } else {
+                        System.out.println("Syntax Error missing )");
+                    }
+                } else {
+                    System.out.println("Syntax Error missing (");
+                }
+            } else {
+                System.out.println("Syntax Error missing identifier");
+            }
+        } else {
+            System.out.println("Syntax Error missing type specifier");
+        }
+    }
+
+    private void params() {
+        if (match(TYPE_SPECIFIER)) {
+            param_list();
+        } else if (match("Keyword void")) {
+            advance();
+        } else {
+            System.out.println("Syntax Error missing type specifier");
+        }
+    }
+
+    private void param_list() {
+        param();
+        if (match("Delimiter ,")) {
+            advance();
+            param_list();
+        } else {
+            return;
+        }
+    }
+
+    private void param() {
+        if (match(TYPE_SPECIFIER)) {
+            advance();
+            if (match(IDENTIFIER)) {
+                advance();
+                if (match("Delimiter \\[")) {
+                    advance();
+                    if (match("Delimiter \\]")) {
+                        advance();
+                    } else {
+                        System.out.println("Syntax Error missing ]");
+                    }
+                }
+            } else {
+                System.out.println("Syntax Error missing identifier");
+            }
+        } else {
+            System.out.println("Syntax Error missing type specifier");
+        }
+    }
+
+    private void compound_stmt() {
+        if (match("Delimiter \\{")) {
+            System.out.println("Compound statement");
+            advance();
+            statement_list();
+            if (match("Delimiter \\}")) {
+                advance();
+                System.out.println("Function declaration Done");
+            } else {
+                System.out.println("Syntax Error missing }");
+            }
+        } else {
+            System.out.println("Syntax Error missing {");
+        }
+    }
+
+    private void statement_list() {
+        if (match(TYPE_SPECIFIER) || match(IDENTIFIER)) {
+            System.out.println("---------------------------------------------------------------------------Statement list");
+            statement();
+            statement_list();
+        } else {
+            return;
+        }
+    }
+
+    private void statement() {
+        if (match(TYPE_SPECIFIER)) {
+            advance();
+            if (match(IDENTIFIER)){
+            advance();  
+           var_declaration();
+            } else {
+                System.out.println("Syntax Error missing identifier");
+            }
+        } else if (match(IDENTIFIER)) {
+            expression_stmt();
+        } else if (match("Keyword if")) {
+            selection_stmt();
+        } else if (match("Keyword while") || match("Keyword for") || match("Keyword do")) {
+            iteration_stmt();
+        } else if (match("Keyword return")) {
+            return_stmt();
+        } else if (match("Delimiter \\{")) {
+            compound_stmt();
+        } else {
+            System.out.println("Syntax Error missing statement");
+        }
+    }
+
+    private void expression_stmt() {
+        if (match("Delimiter ;")) {
+            advance();
+        } else {
+            expression();
+            if (match("Delimiter ;")) {
+                advance();
+            } else {
+                System.out.println("Syntax Error missing ;");
+            }
+        }
+    }
+
+    private void selection_stmt() {
+        if (match("Keyword if")) {
+            advance();
+            if (match("Delimiter \\(")) {
+                advance();
+                expression();
+                if (match("Delimiter \\)")) {
+                    advance();
+                    statement();
+                    if (match("Keyword else")) {
+                        advance();
+                        statement();
+                    }
+                } else {
+                    System.out.println("Syntax Error missing )");
+                }
+            } else {
+                System.out.println("Syntax Error missing (");
+            }
+        } else {
+            System.out.println("Syntax Error missing if");
+        }
+    }
+
+
+    private void iteration_stmt() {
+        if (match("Keyword while")) {
+            advance();
+            if (match("Delimiter \\(")) {
+                advance();
+                expression();
+                if (match("Delimiter \\)")) {
+                    advance();
+                    statement();
+                } else {
+                    System.out.println("Syntax Error missing )");
+                }
+            } else {
+                System.out.println("Syntax Error missing (");
+            }
+        } else if (match("Keyword for")) {
+            advance();
+            if (match("Delimiter \\(")) {
+                advance();
+                expression_stmt();
+                expression();
+                if (match("Delimiter ;")) {
+                    advance();
+                    expression();
+                    if (match("Delimiter \\)")) {
+                        advance();
+                        statement();
+                    } else {
+                        System.out.println("Syntax Error missing )");
+                    }
+                } else {
+                    System.out.println("Syntax Error missing ;");
+                }
+            } else {
+                System.out.println("Syntax Error missing (");
+            }
+        } else if (match("Keyword do")) {
+            advance();
+            statement();
+            if (match("Keyword while")) {
+                advance();
+                if (match("Delimiter \\(")) {
+                    advance();
+                    expression();
+                    if (match("Delimiter \\)")) {
+                        advance();
+                        if (match("Delimiter ;")) {
+                            advance();
+                        } else {
+                            System.out.println("Syntax Error missing ;");
+                        }
+                    } else {
+                        System.out.println("Syntax Error missing )");
+                    }
+                } else {
+                    System.out.println("Syntax Error missing (");
+                }
+            } else {
+                System.out.println("Syntax Error missing while");
+            }
+        } else {
+            System.out.println("Syntax Error missing iteration statement");
+        }
+    }
+
+    private void return_stmt() {
+        if (match("Keyword return")) {
+            advance();
+            if (match("Delimiter ;")) {
+                advance();
+            } else {
+                expression();
+                if (match("Delimiter ;")) {
+                    advance();
+                } else {
+                    System.out.println("Syntax Error missing ;");
+                }
+            }
+        } else {
+            System.out.println("Syntax Error missing return");
+        }
+    }
+
     private void struct_var_declaration_list() {
         if (match(TYPE_SPECIFIER)) {
             declaration();
@@ -359,9 +597,10 @@ public class SyntaxAnalyzer {
 
 
     private void enum_declaration() {
-        System.out.println("Entering enum_declaration()");
-        System.out.println("Current token index: " + tokens.get(currentTokenIndex).value + " " + tokens.get(currentTokenIndex).type );
+       
+        if (match(IDENTIFIER)) {
 
+            advance();
             if (match("Delimiter \\{")) {
                 advance();
                 enum_var_list();
@@ -379,6 +618,9 @@ public class SyntaxAnalyzer {
             } else {
                 System.out.println("Syntax Error missing {");
             }
+        } else {
+            System.out.println("Syntax Error missing identifier for the Enum declaration");
+        }
         } 
 
     
@@ -387,12 +629,6 @@ public class SyntaxAnalyzer {
         if (match(IDENTIFIER)) {
             advance();
 
-            if ( match("Operator =")) {
-                advance();
-                expression();
-            } else {
-                return;
-            }
 
             if (match("Delimiter ,")) {
                 advance();
@@ -413,7 +649,7 @@ public class SyntaxAnalyzer {
         
            if ( match("Delimiter ;")) {
             advance();
-            System.out.println("Variable declaration");
+            System.out.println("Variable declaration with assignment done");
             
            }else {
                System.out.println("Syntax Error missing in assignment  ;");
