@@ -445,7 +445,7 @@ public class SyntaxAnalyzer {
             statement_list();
             if (match("Delimiter \\}")) {
                 advance();
-                System.out.println("Function declaration Done");
+                System.out.println("Compound statement done");
             } else {
                 System.err.println("Syntax Error missing }");
             }
@@ -495,18 +495,64 @@ public class SyntaxAnalyzer {
     }
 
     private void expression_stmt() {
+       if (match(IDENTIFIER))
+       {
+        advance();  
+
+        if (match("Operator =")) {
+            advance();
+            expression();
+            
+        }else if (match("Delimiter \\[")) {
+            advance();
+            expression();
+            if (match("Delimiter \\]")) {
+                advance();
+            } else {
+                System.out.println("Syntax Error missing ]");
+            }
+        } else if (match("Delimiter \\(")) {
+            advance();
+            args_opt();
+            if (match("Delimiter \\)")) {
+                advance();
+            } else {
+                System.out.println("Syntax Error missing )");
+                System.exit(1);
+            }
+        } else if (match("Operator \\+\\+") || match("Operator --")) {
+            advance();
+        } else if (match("Delimiter \\.")) {
+            advance();
+            if (match(IDENTIFIER)) {
+                advance();
+            } else {
+                System.out.println("Syntax Error missing identifier");
+            }
+        } else if (match("Operator ->")) {
+            advance();
+            if (match(IDENTIFIER)) {
+                advance();
+            } else {
+                System.out.println("Syntax Error missing identifier");
+            }
+        } else if (match("Operator \\+\\+")) {
+            advance();
+        } else if (match("Operator --")) {
+            advance();
+        }  else {
+            System.out.println("Syntax Error missing expression");
+            System.exit(1);
+            
+        }
+
         if (match("Delimiter ;")) {
             advance();
         } else {
-            expression();
-            if (match("Delimiter ;")) {
-                advance();
-            } else {
-                System.err.println("Syntax Error missing ;");
-                System.exit(1); // Exit with error code 1
-
-            }
+            System.out.println("Syntax Error missing ;");
+            System.exit(1);
         }
+       }
     }
 
     private void selection_stmt() {
@@ -1076,17 +1122,14 @@ public class SyntaxAnalyzer {
     private void args_opt()
     {
 
+        System.err.println("Entering args_opt() " + tokens.get(currentTokenIndex).value);
 
-        if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
-            System.out.println("Entering args_opt()");
-
-            args_list(); // Parse the arguments list
+        if (match("Delimiter \\)")) {
+            return;
         } else {
-            System.out.println("No arguments found in args_opt()");
-            
-
-
+            args_list();
         }
+
     }
 
     private void args_list() {
@@ -1095,10 +1138,16 @@ public class SyntaxAnalyzer {
 
 
 
-            expression(); // Parse the first argument
+            expression(); 
+
+            if (match("Delimiter \\)") ) {
+                return;
+            }
+            advance();
 
         // Check for more arguments separated by commas
         if (match("Delimiter ,")) {
+            System.err.println("rcursion in args_list"+ tokens.get(currentTokenIndex).value);
             advance(); // Consume the comma token
             args_list(); // Parse the next argument
         }
