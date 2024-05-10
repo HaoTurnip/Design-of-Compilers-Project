@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Main extends JFrame {
 
@@ -33,12 +32,12 @@ public class Main extends JFrame {
             analyzeInput();
         });
 
-//        createParseTree.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                createParseTree();
-//            }
-//        });
+       createParseTree.addActionListener(new ActionListener() {
+           @Override
+           public void actionPerformed(ActionEvent e) {
+               createParseTree();
+           }
+       });
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
@@ -54,7 +53,7 @@ public class Main extends JFrame {
         redirectConsoleOutput();
 
         // Initialize file
-        file = new File("D:/semster6/design of compilers/our_project/Design-of-Compilers-Project/input.c");
+        file = new File("/Users/kareem/Documents/Design-of-Compilers-Project/input.c");
 
         // Load content of file into inputTextArea
         loadFileContent();
@@ -111,10 +110,10 @@ public class Main extends JFrame {
         }
     }
 
-//    private void createParseTree() {
-//        // Placeholder method for creating parse tree
-//        (new ParseTree(tokens)).parse();
-//    }
+   private void createParseTree() {
+       // Placeholder method for creating parse tree
+       (new SyntaxAnalyzer(tokens)).parse();
+   }
 
     private void loadFileContent() {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {

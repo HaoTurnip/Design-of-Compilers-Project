@@ -1,13 +1,1 @@
-// array
-
-
-int main() {
-
-    if(x>0) {
-         x++;
-
-         y++;
-
-         printf("x", x);
-    }
-}
+int x =5;
