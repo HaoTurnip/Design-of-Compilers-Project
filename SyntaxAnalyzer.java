@@ -373,7 +373,7 @@ public class SyntaxAnalyzer {
                     System.out.println("Function declaration in var dec");
                     currentTokenIndex = 0;
 
-                    fun_declaration();
+                    fun_declaration(decl);
              
                 }else {
 
@@ -455,17 +455,26 @@ public class SyntaxAnalyzer {
         
     }
 
-    private void fun_declaration() {
+    private void fun_declaration(TextInBox parentNode) {
+
         if (match(TYPE_SPECIFIER)) {
+
             advance();
             if (match(IDENTIFIER)) {
+                TextInBox idtoken = new TextInBox("Identifier",80,20);
+                tree.addChild(parentNode,idtoken);
+                tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
                 advance();
                 if (match("Delimiter \\(")) {
+
+                    tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
                     advance();
                     params();
                     if (match("Delimiter \\)")) {
+                        
+                        tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
                         advance();
-                        compound_stmt();
+                        //compound_stmt();
                     } else {
                         System.out.println("Syntax Error missing )");
                         System.exit(1); // Exit with error code 1
@@ -1267,9 +1276,9 @@ public class SyntaxAnalyzer {
 
 
             else {
-                TextInBox idtoken2 = new TextInBox("Identifier",80,20);
+                TextInBox idtoken2 = new TextInBox("Identifiejjjjjjr",80,20);
                 tree.addChild(expressionnode,idtoken2);
-                tree.addChild(idtoken2,new TextInBox(getTokenData(),80,20));
+                tree.addChild(idtoken2,new TextInBox(tokens.get(currentIndex).value,80,20));
                 // It's a regular identifier
                 currentTokenIndex = currentIndex; // Reset index
                 // Handle regular identifier logic here
