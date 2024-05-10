@@ -1,5 +1,9 @@
 import java.util.List;
 
+import org.abego.treelayout.TreeLayout;
+import org.abego.treelayout.demo.TextInBox;
+import org.abego.treelayout.util.DefaultTreeForTreeLayout;
+
 /**
  TEST case1 : printf("Hello World");
 
@@ -182,6 +186,14 @@ argument_expression_list : assignment_expression
   
 
  **/
+import org.abego.treelayout.demo.TextInBoxNodeExtentProvider;
+import org.abego.treelayout.demo.swing.TextInBoxTreePane;
+import org.abego.treelayout.util.DefaultConfiguration;
+import org.abego.treelayout.util.DefaultTreeForTreeLayout;
+
+import javax.swing.*;
+import java.awt.*;
+
 
 public class SyntaxAnalyzer {
     public String TYPE_SPECIFIER = "Keyword (int|float|char|double|short|long|signed|unsigned|void|String|bool|struct|enum|typedef)";
@@ -193,6 +205,10 @@ public class SyntaxAnalyzer {
     private int currentTokenIndex;
     private List<LexicalAnalyzer.Token> tokens;
 
+
+    private TextInBox root = new TextInBox("Program",80,20);
+
+    DefaultTreeForTreeLayout<TextInBox> tree = new DefaultTreeForTreeLayout<>(root);
     
 
 
@@ -230,6 +246,30 @@ public class SyntaxAnalyzer {
     }
 
 
+    private static void showInDialog(JComponent panel) {
+        // Create a JScrollPane and add the panel to it
+        JScrollPane scrollPane = new JScrollPane(panel);
+
+        // Set empty border around the scroll pane
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Create a dialog and set its content pane to the scroll pane
+        JDialog dialog = new JDialog();
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.getContentPane().setLayout(new BorderLayout());
+        dialog.getContentPane().add(scrollPane, BorderLayout.CENTER);
+
+        // Pack and set dialog properties
+        dialog.pack();
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+    }
+
+    public void addChild(TextInBox parent,String childname)
+    {
+        tree.addChild(root,new TextInBox(childname,80,20));
+    }
+
 
 
     public void advance() {
@@ -243,6 +283,13 @@ public class SyntaxAnalyzer {
         System.out.println("Advancing to: " + tokens.get(currentTokenIndex).type + " " + tokens.get(currentTokenIndex).value);
     }
 
+    private String getTokenData()
+    {
+        return tokens.get(currentTokenIndex).value;
+    }
+
+
+
     public void parse () {
         program();
     }
@@ -250,15 +297,37 @@ public class SyntaxAnalyzer {
 
       private void program() {
         declaration_list();        
-        
+         tree.addChild(root,new TextInBox("EOF",80,20));
+
+
+        // Setup the tree layout configuration
+        double gapBetweenLevels = 50;
+        double gapBetweenNodes = 10;
+        DefaultConfiguration<TextInBox> configuration = new DefaultConfiguration<>(gapBetweenLevels, gapBetweenNodes);
+
+        // Create the NodeExtentProvider for TextInBox nodes
+        TextInBoxNodeExtentProvider nodeExtentProvider = new TextInBoxNodeExtentProvider();
+
+        // Create the layout
+        TreeLayout<TextInBox> treeLayout = new TreeLayout<>(tree, nodeExtentProvider, configuration);
+
+        // Create a panel that draws the nodes and edges
+        TextInBoxTreePane panel = new TextInBoxTreePane(treeLayout);
+
+        // Show the panel in a dialog
+        showInDialog(panel);
+
+        System.out.println("Parsing complete.");
 
     }
+
+
 
     private void declaration_list() {
 
         if (match(TYPE_SPECIFIER) ) {
             
-            declaration();
+            declaration(root);
             declaration_list();
 
         } else {
@@ -267,12 +336,31 @@ public class SyntaxAnalyzer {
      
     }
 
-    private void declaration() {
+    private void declaration(TextInBox decnode) {
+
+        TextInBox decl = new TextInBox("decleration",80,20);
+        tree.addChild(decnode,decl);
+
+        TextInBox keywordnode = new TextInBox("Keyword",80,20);
+
+
         if (match(TYPE_SPECIFIER) && !tokens.get(currentTokenIndex).value.equals("struct") && !tokens.get(currentTokenIndex).value.equals("enum") && !tokens.get(currentTokenIndex).value.equals("typedef") ) {
+            TextInBox typespecifier = new TextInBox("Type Specifier",80,20);
+            tree.addChild(decl,typespecifier);
+            tree.addChild(typespecifier,new TextInBox(getTokenData(),80,20));
+
             advance();
           if (match(IDENTIFIER)) {
+            TextInBox idtoken3 = new TextInBox("Identifier",80,20);
+            tree.addChild(decl,idtoken3);
+            tree.addChild(idtoken3,new TextInBox(getTokenData(),80,20));
+
                 advance();
               if (match("Delimiter \\[")) {
+
+                TextInBox arraydec = new TextInBox("Array declaration",80,20);
+                tree.addChild(decl,arraydec);
+                tree.addChild(arraydec,new TextInBox(getTokenData(),80,20));
                     advance();
                     // array declaration       
                 } else if (match("Operator \\*")) {
@@ -299,9 +387,18 @@ public class SyntaxAnalyzer {
             }
 
         } else if (match("Keyword struct") && tokens.get(currentTokenIndex).value.equals("struct")) {
+            tree.addChild(decl,keywordnode);
+            TextInBox structkeyword = new TextInBox(getTokenData(),80,20);
+            tree.addChild(keywordnode,structkeyword);
+
+
             advance();
             struct_declaration();
         } else if (match("Keyword enum")  && tokens.get(currentTokenIndex).value.equals("enum") ) {
+            tree.addChild(decl,keywordnode);
+            TextInBox enumkeyword = new TextInBox(getTokenData(),80,20);
+            tree.addChild(keywordnode,enumkeyword); // ENUM KEYWORD
+
             System.out.println("Enum declaration");
             advance();
             enum_declaration();
@@ -698,7 +795,7 @@ public class SyntaxAnalyzer {
 
     private void struct_var_declaration_list() {
         if (match(TYPE_SPECIFIER)) {
-            declaration();
+            declaration(root);
             struct_var_declaration_list();
         } else {
             return;
