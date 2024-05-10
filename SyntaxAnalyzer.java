@@ -351,9 +351,7 @@ public class SyntaxAnalyzer {
 
             advance();
           if (match(IDENTIFIER)) {
-            TextInBox idtoken3 = new TextInBox("Identifier",80,20);
-            tree.addChild(decl,idtoken3);
-            tree.addChild(idtoken3,new TextInBox(getTokenData(),80,20));
+
 
                 advance();
               if (match("Delimiter \\[")) {
@@ -379,7 +377,10 @@ public class SyntaxAnalyzer {
              
                 }else {
 
-                    var_declaration();
+
+                    retract();  
+                    var_declaration(decl);
+                    
 
                     //var_declaration();
                   
@@ -539,7 +540,7 @@ public class SyntaxAnalyzer {
         if (match("Delimiter \\{")) {
             System.out.println("Compound statement");
             advance();
-            statement_list();
+            //statement_list();
             if (match("Delimiter \\}")) {
                 advance();
                 System.out.println("Compound statement done");
@@ -553,35 +554,44 @@ public class SyntaxAnalyzer {
         }
     }
 
-    private void statement_list() {
+    private void statement_list(TextInBox parentNode)  {
         if (match(TYPE_SPECIFIER) || match(IDENTIFIER) || match("Keyword if") || match("Keyword while") || match("Keyword for") || match("Keyword do") || match("Keyword return") || match("Delimiter \\{" )) {
             System.out.println("---------------------------------------------------------------------------Statement list");
-            statement();
-            statement_list();
+            TextInBox stmtlist = new TextInBox("Statement List",80,20);
+            tree.addChild(parentNode,stmtlist);
+            statement(stmtlist);
+            // statement_list();
         } else {
             return;
         }
     }
 
-    private void statement() {
+    private void statement(TextInBox parentNode) {
+        TextInBox stament = new TextInBox("Statement",80,20);
+        tree.addChild(parentNode,stament);
         if (match(TYPE_SPECIFIER)) {
+           
+            TextInBox typespecifier = new TextInBox("Type Specifier",80,20);
+            tree.addChild(stament,typespecifier);
+            tree.addChild(typespecifier,new TextInBox(getTokenData(),80,20));
+
             advance();
             if (match(IDENTIFIER)){
             advance();  
-           var_declaration();
+            var_declaration(stament);
             } else {
                 System.err.println("Syntax Error missing identifier");
             }
         } else if (match(IDENTIFIER)) {
-            expression_stmt();
+            expression_stmt(stament);
         } else if (match("Keyword if")) {
             System.out.println("Selection statement entered");
-            selection_stmt();
+            selection_stmt(stament);
         } else if (match("Keyword while") || match("Keyword for") || match("Keyword do")) {
             System.err.println("Iteration statement entered");
-            iteration_stmt();
+            iteration_stmt(stament);
         } else if (match("Keyword return")) {
-            return_stmt();
+            return_statement(parentNode);
         } else if (match("Delimiter \\{")) {
             compound_stmt();
         } else {
@@ -591,18 +601,26 @@ public class SyntaxAnalyzer {
         }
     }
 
-    private void expression_stmt() {
+    private void expression_stmt(TextInBox parentNode) {
+
+
        if (match(IDENTIFIER))
        {
+        TextInBox expressionstmt = new TextInBox("Expression Stmt",80,20);
+        tree.addChild(parentNode,expressionstmt);
+        TextInBox idtoken = new TextInBox("Identifier",80,20);
+        tree.addChild(expressionstmt,idtoken);
+        tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
+
         advance();  
 
         if (match("Operator =")) {
             advance();
-            expression();
+            expression(expressionstmt);
             
         }else if (match("Delimiter \\[")) {
             advance();
-            expression();
+            expression(expressionstmt);
             if (match("Delimiter \\]")) {
                 advance();
             } else {
@@ -610,7 +628,7 @@ public class SyntaxAnalyzer {
             }
         } else if (match("Delimiter \\(")) {
             advance();
-            args_opt();
+            args_opt(expressionstmt);
             if (match("Delimiter \\)")) {
                 advance();
             } else {
@@ -652,18 +670,26 @@ public class SyntaxAnalyzer {
        }
     }
 
-    private void selection_stmt() {
+    private void selection_stmt(TextInBox parentNode) {
         if (match("Keyword if")) {
+            TextInBox ifstmt = new TextInBox("if Statement",100,20);
+            TextInBox idtoken = new TextInBox("Keyword",100,20);
+            tree.addChild(parentNode,ifstmt);
+            tree.addChild(ifstmt,idtoken);
+            tree.addChild(idtoken,new TextInBox(getTokenData(),100,20));
+    
             advance();
             if (match("Delimiter \\(")) {
+
+                tree.addChild(ifstmt,new TextInBox(getTokenData(),100,20));
                 advance();
-                expression();
+                expression(ifstmt);
                 if (match("Delimiter \\)")) {
                     advance();
-                    statement();
+                    statement(ifstmt);
                     if (match("Keyword else")) {
                         advance();
-                        statement();
+                        statement(ifstmt);
                     }
                 } else {
                      System.err.println("Syntax Error missing )");
@@ -677,15 +703,15 @@ public class SyntaxAnalyzer {
     }
 
 
-    private void iteration_stmt() {
+    private void iteration_stmt(TextInBox parentNode) {
         if (match("Keyword while")) {
             advance();
             if (match("Delimiter \\(")) {
                 advance();
-                expression();
+                //expression();
                 if (match("Delimiter \\)")) {
                     advance();
-                    statement();
+                    //statement();
                 } else {
                     System.out.println("Syntax Error missing )");
                 }
@@ -693,15 +719,26 @@ public class SyntaxAnalyzer {
                 System.out.println("Syntax Error missing (");
             }
         } else if (match("Keyword for")) {
+            TextInBox forstmt = new TextInBox("For Statement",80,20);
+            tree.addChild(parentNode,forstmt);
+            tree.addChild(forstmt,new TextInBox(getTokenData(),80,20));
             advance();
             if (match("Delimiter \\(")) {
+                tree.addChild(forstmt,new TextInBox(getTokenData(),80,20));
+
                 advance();
 
                 if (match(TYPE_SPECIFIER)){
+
+                    tree.addChild(forstmt,new TextInBox(getTokenData(),80,20));
+
                     advance();
                     if (match(IDENTIFIER)){
+
+                        tree.addChild(forstmt,new TextInBox(getTokenData(),80,20));
                         advance();
-                        var_declaration();
+
+                       // var_declaration();
                         retract();
                     } else {
                         System.err.println("Syntax Error missing identifier");
@@ -721,12 +758,14 @@ public class SyntaxAnalyzer {
 
                
                 if (match("Delimiter ;")) {
+                    tree.addChild(forstmt,new TextInBox(getTokenData(),80,20));
                     advance();
-                    expression();
+                    expression(forstmt);
 
                     if (match("Delimiter ;")) {
+                        tree.addChild(forstmt,new TextInBox(getTokenData(),80,20));
                         advance();
-                        expression();
+                        expression(forstmt);
                     } else {
                         System.out.println("Syntax Error missing ;");
                     }
@@ -734,7 +773,7 @@ public class SyntaxAnalyzer {
                     if (match("Delimiter \\)")) {
                         System.out.println("For loop done");
                         advance();
-                        statement();
+                        statement(forstmt);
                     } else {
                         System.err.println("Syntax error: Expected ')' after for loop condition" );
                         
@@ -748,12 +787,12 @@ public class SyntaxAnalyzer {
             }
         } else if (match("Keyword do")) {
             advance();
-            statement();
+            //statement();
             if (match("Keyword while")) {
                 advance();
                 if (match("Delimiter \\(")) {
                     advance();
-                    expression();
+                   // expression();
                     if (match("Delimiter \\)")) {
                         advance();
                         if (match("Delimiter ;")) {
@@ -775,13 +814,22 @@ public class SyntaxAnalyzer {
         }
     }
 
-    private void return_stmt() {
+    private void return_statement(TextInBox parentNode) {
         if (match("Keyword return")) {
+            TextInBox returnstmt = new TextInBox("Return Stmt",80,20);
+            tree.addChild(parentNode,returnstmt);
+            TextInBox keyword = new TextInBox("Keyword",80,20);
+            tree.addChild(returnstmt,keyword);
+            tree.addChild(keyword,new TextInBox(getTokenData(),80,20));
+
+
             advance();
+
+
             if (match("Delimiter ;")) {
                 advance();
             } else {
-                expression();
+                expression(parentNode);
                 if (match("Delimiter ;")) {
                     advance();
                 } else {
@@ -847,14 +895,30 @@ public class SyntaxAnalyzer {
             return;
         }
     }
-    private void var_declaration() {
+    private void var_declaration(TextInBox parentNode) {
+        // Consume the keyword token
+        TextInBox vardec = new TextInBox("Variable declaration",80,20);
+        tree.addChild(parentNode,vardec);
 
+        if (match(IDENTIFIER)) {
+            TextInBox idtoken3 = new TextInBox("Identifier", 80, 20);
+            tree.addChild(vardec, idtoken3);
+            tree.addChild(idtoken3, new TextInBox(getTokenData(), 80, 20));
+
+
+            advance();
+            
+        
         if (match("Operator =")) {
+            tree.addChild(vardec, new TextInBox(getTokenData(), 80, 20));
+
             advance();
 
-            expression();
+            expression(vardec);
         
            if ( match("Delimiter ;")) {
+            tree.addChild(vardec, new TextInBox(getTokenData(), 80, 20));
+
             advance();
             System.out.println("Variable declaration with assignment done");
             
@@ -864,6 +928,8 @@ public class SyntaxAnalyzer {
            }
             
         }else if (match("Delimiter ;")) {
+            tree.addChild(vardec, new TextInBox(getTokenData(), 80, 20));
+
             advance();
             System.out.println("Variable declaration");
             return;
@@ -872,30 +938,39 @@ public class SyntaxAnalyzer {
             System.out.println("Syntax Error missing but without assignment ;");
         }
 
+    } else {
+        System.out.println("Syntax Error missing identifier");
+    }
 
 
 
     }
 
-    private void expression() {
-        System.out.println("Entering expression()");
-        conditional_expression();
+    private void expression(TextInBox parentNode)
+    {
+        TextInBox expressionnode = new TextInBox("Expression",80,20);
+        tree.addChild(parentNode,expressionnode);
+        conditional_expression(expressionnode); // Parse the conditional expression
     }
 
-    private void conditional_expression() {
-        System.out.println("Entering conditional_expression()");
-        logical_or_expression(); 
+    private void conditional_expression(TextInBox parentNode) {
+        TextInBox expressionnode = new TextInBox("Cond Exp",80,20);
+
+        logical_or_expression(parentNode); // Parse the logical OR expression
 
         if (match("Operator \\? ")) {
+            tree.addChild(parentNode,expressionnode);
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
             advance(); // Consume the '?' token
 
-            expression();
+            expression(expressionnode);
 
             // Check for the colon ':' token
             if (match("Operator :")) {
-                advance();
+                tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
+                advance(); // Consume the ':' token
 
-                expression();
+                expression(expressionnode);
             } else {
                 System.err.println("Syntax error: Expected ':' after the true condition in ternary operator");
                 System.exit(1);
@@ -904,15 +979,20 @@ public class SyntaxAnalyzer {
         }   
     }
 
-    private void logical_or_expression() {
-        logical_and_expression();
+    private void logical_or_expression(TextInBox parentNode)
+    {
+        TextInBox expressionnode = new TextInBox("Logical OR Exp",80,20);
+
+        logical_and_expression(parentNode);
 
         while (match("Operator \\|\\|")) {
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
+
             advance(); // Consume the '||' token
 
             // Check if there is a valid token after the logical OR operator
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
-                logical_and_expression();
+                logical_and_expression(expressionnode);
             } else {
                 // Error handling: Expected identifier, number, or left parenthesis after logical OR operator
                 System.err.println("Syntax error: Expected identifier, number, or expression after logical OR operator");
@@ -923,15 +1003,23 @@ public class SyntaxAnalyzer {
         }
     }
 
-    private void logical_and_expression() {
-       equality_expression();
+    private void logical_and_expression(TextInBox parentNode)
+    {
+        TextInBox expressionnode = new TextInBox("Logical AND Exp",80,20);
+
+
+    //    logical_and_expression(parentNode);
+        equality_expression(parentNode);
+
 
         while (match("Operator &&")) {
-            advance(); 
+            tree.addChild(parentNode,expressionnode);
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
+            advance(); // Consume the '&&' token
 
             // Check if there is a valid token after the logical AND operator
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
-                equality_expression();
+                equality_expression(expressionnode);
             } else {
                 System.err.println("Syntax error: Expected identifier, number, or expression after logical AND operator");
                 System.exit(1);
@@ -941,14 +1029,20 @@ public class SyntaxAnalyzer {
         }
     }
 
-    private void equality_expression() {
-        relational_expression();
+    private void equality_expression(TextInBox parentNode)
+    {
+        TextInBox expressionnode = new TextInBox("Equality Exp",80,20);
+
+        relational_expression(parentNode);
+
 
         while (match("Operator ==") || match("Operator !=")) {
-            advance(); 
+            tree.addChild(parentNode,expressionnode);
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
+            advance(); // Consume the equality operator
 
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
-                relational_expression();
+                relational_expression(expressionnode);
             } else {
                 // Error handling: Expected identifier, number, or left parenthesis after comparison operator
                 System.err.println("Syntax error: Expected identifier, number, or expression after comparison operator");
@@ -958,16 +1052,19 @@ public class SyntaxAnalyzer {
     }
 
 
-    private void relational_expression() {
-        additive_expression();
+    private void relational_expression(TextInBox parentNode)
+    {
+        TextInBox expressionnode = new TextInBox("Relational Exp",80,20);
+        additive_expression(parentNode);
 
         while (match("Operator <") || match("Operator >") || match("Operator <=") || match("Operator >=")) {
+            tree.addChild(parentNode,expressionnode);
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
             advance(); // Consume the relational operator
-
             // Check if there is a valid token after the relational operator
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
                 // Valid token found, continue parsing the expression
-                additive_expression();
+                additive_expression(expressionnode);
             } else {
                 // Error handling: Expected identifier, number, or left parenthesis after relational operator
                 System.err.println("Syntax error: Expected identifier, number, or expression after relational operator");
@@ -975,17 +1072,21 @@ public class SyntaxAnalyzer {
             }
         }
     }
-    private void additive_expression() {
-        multiplicative_expression();
+
+    private void additive_expression(TextInBox parentNode)
+    {
+        TextInBox expressionnode = new TextInBox("Additive Exp",80,20);
+        multiplicative_expression(parentNode);
 
         while (match("Operator \\+") || match("Operator -")) {
            
+        tree.addChild(parentNode,expressionnode);
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
             advance(); // Consume the additive operator
-
             // Check if there is a valid token after the additive operator
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
                 // Valid token found, continue parsing the expression
-                multiplicative_expression();
+                multiplicative_expression(expressionnode);
             } else {
                 // Error handling: Expected identifier, number, or left parenthesis after additive operator
                 System.err.println("Syntax error: Expected identifier, number, or expression after additive operator");
@@ -994,15 +1095,19 @@ public class SyntaxAnalyzer {
         }
     }
 
-    private void multiplicative_expression() {
-        unary_expression();
+    private void multiplicative_expression(TextInBox parentNode)
+    {
+        TextInBox expressionnode = new TextInBox("Multiplicative Exp",100,20);
+        unary_expression(parentNode);
 
         while (match("Operator \\*") || match("Operator /") || match("Operator %")){
+            tree.addChild(parentNode,expressionnode);
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),100,20));
             advance(); // Consume the multiplicative operator
 
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")){
                 // Valid token found, continue parsing the expression
-                unary_expression();
+                unary_expression(expressionnode);
             } else {
                 // Error handling: Expected identifier, number, or left parenthesis after multiplicative operator
                 System.err.println("Syntax error: Expected identifier, number, or expression after multiplicative operator");
@@ -1012,22 +1117,23 @@ public class SyntaxAnalyzer {
             }
         }
     }
-
-    private void unary_expression() {
-        System.out.println("Entering unary_expression()");
-        System.out.println("Unary expression debug x: " + tokens.get(currentTokenIndex).value + " " + tokens.get(currentTokenIndex).type );
+    private void unary_expression(TextInBox parentNode)
+    {
+        TextInBox expressionnode = new TextInBox("Unary Exp",100,20);
 
         if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
             System.out.println("Parsed primary expression");
-            primary_expression(); 
+            primary_expression(parentNode); 
 
         } else if (match("Operator \\+") || match("Operator -") || match("Operator ~") || match("Operator !") || match("Operator \\*") || match("Operator &") || match("Operator sizeof")) {
+            tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+
             advance(); // Consume the unary operator
 
             // Check if there is a valid token after the unary operator
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
                 // Valid token found, continue parsing the expression
-                unary_expression();
+                unary_expression(parentNode);
             } else {
                 // Error handling: Expected identifier, number, or left parenthesis after unary operator
                 System.err.println("Syntax error: Expected identifier, number, or expression after unary operator");
@@ -1038,6 +1144,8 @@ public class SyntaxAnalyzer {
         }
         else if (match("Operator \\+\\+") || match("Operator --")) 
         {
+            tree.addChild(parentNode,expressionnode);
+
 
             int prevIndex = currentTokenIndex - 1;
             int nextIndex = currentTokenIndex + 1;
@@ -1047,6 +1155,8 @@ public class SyntaxAnalyzer {
             System.out.println("TESTTT");
 
             String unaryOp = tokens.get(currentTokenIndex).value;
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
+
             advance(); // Consume the unary operator
 
             // Check if there is a valid token after the unary operator
@@ -1058,6 +1168,10 @@ public class SyntaxAnalyzer {
 
             }
             else if (match(IDENTIFIER)) {
+                TextInBox idtoken = new TextInBox("Identifer",80,20);
+                tree.addChild(expressionnode,idtoken);
+
+                tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
                 
                 advance();
 
@@ -1070,10 +1184,12 @@ public class SyntaxAnalyzer {
 
 
 
-                unary_expression();
+                unary_expression(parentNode);
             }
             else if (match("Delimeter ;"))
             {
+
+                tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
 
 
 
@@ -1095,11 +1211,15 @@ public class SyntaxAnalyzer {
 
 
 
-    private void primary_expression()
+    private void primary_expression(TextInBox parentNode)
     {
+
+        TextInBox expressionnode = new TextInBox("Primary Exp",100,20);
+        tree.addChild(parentNode,expressionnode);
         System.out.println("Entering primary_expression()");
 
         if (match(NUM)) {
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),100,20));
 
             System.out.println("Parsed number: " + tokens.get(currentTokenIndex).value);
             advance(); // Consume the number token
@@ -1107,10 +1227,14 @@ public class SyntaxAnalyzer {
 
             arrayretract = false;
         } else if (match("Delimiter \\(")) {
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),100,20));
+
             advance(); 
-            expression(); // Parse the enclosed expression
+            expression(expressionnode); // Parse the enclosed expression
             arrayretract = false;
             if (match("Delimiter \\)")) {
+                tree.addChild(expressionnode,new TextInBox(getTokenData(),100,20));
+
                 advance(); // Consume the right parenthesis token
                 arrayretract = false;
             } else {
@@ -1127,7 +1251,7 @@ public class SyntaxAnalyzer {
                 // It's a function call
                 currentTokenIndex = currentIndex; // Reset index
                 arrayretract = false;
-                function_call(); // Parse function call
+                function_call(expressionnode); // Parse function call
             }
             else if(match("Delimiter \\["))
 
@@ -1135,6 +1259,7 @@ public class SyntaxAnalyzer {
 
                inParenthesis = true; arrayretract = true;
                 retract();
+                // array_call(expressionnode);
 
 
             }
@@ -1142,6 +1267,9 @@ public class SyntaxAnalyzer {
 
 
             else {
+                TextInBox idtoken2 = new TextInBox("Identifier",80,20);
+                tree.addChild(expressionnode,idtoken2);
+                tree.addChild(idtoken2,new TextInBox(getTokenData(),80,20));
                 // It's a regular identifier
                 currentTokenIndex = currentIndex; // Reset index
                 // Handle regular identifier logic here
@@ -1153,7 +1281,7 @@ public class SyntaxAnalyzer {
                 if (match("Operator \\+\\+") || match("Operator --")) {
                     arrayretract = false;
                     // Handle unary expression
-                    unary_expression();
+                    unary_expression(expressionnode);
                 }
             }
         }
@@ -1162,8 +1290,12 @@ public class SyntaxAnalyzer {
 
 
 
-    private void function_call() {
+    private void function_call(TextInBox parentNode) {
+        TextInBox funcall = new TextInBox("Function Call",80,20);
+        tree.addChild(parentNode,funcall);
         if (match(IDENTIFIER)) {
+            tree.addChild(funcall,new TextInBox(getTokenData(),80,20));
+
 
             advance(); 
         } else {
@@ -1173,6 +1305,8 @@ public class SyntaxAnalyzer {
 
         // Check for left parenthesis
         if (match( "Delimiter \\(")) {
+            tree.addChild(funcall,new TextInBox(getTokenData(),80,20));
+
             advance(); 
 
         } else {
@@ -1183,21 +1317,28 @@ public class SyntaxAnalyzer {
 
         
 
-        args_opt();
+        args_opt(funcall);
 
         // Check for right parenthesis
         if (match( "Delimiter \\)")) {
+
+           
+            tree.addChild(funcall,new TextInBox(getTokenData(),80,20));
             advance(); // Consume the right parenthesis token
 
             while (match("Delemiter \\.")) {
+                tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+
                 advance(); // Consume the dot operator
                 // Repeat function call parsing for chaining
-                function_call();
+                function_call(parentNode);
                 retract();
             }
 
             if(match("Delimiter ;"))
             {
+                tree.addChild(funcall,new TextInBox(getTokenData(),80,20));
+
                 advance();
             } else
             {
@@ -1216,40 +1357,37 @@ public class SyntaxAnalyzer {
         }
     }
 
-    private void args_opt()
+
+    private void args_opt(TextInBox parentNode)
     {
 
-        System.err.println("Entering args_opt() " + tokens.get(currentTokenIndex).value);
 
-        if (match("Delimiter \\)")) {
-            return;
+        if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
+            System.out.println("Entering args_opt()");
+
+            args_list(parentNode); // Parse the arguments list
         } else {
-            args_list();
-        }
+            System.out.println("No arguments found in args_opt()");
 
+
+        }
     }
 
-    private void args_list() {
+    private void args_list(TextInBox parentNode) {
         System.out.println("Entering args_list()");
 
 
 
 
-            expression(); 
-
-            if (match("Delimiter \\)") ) {
-                return;
-            }
-            advance();
+        expression(parentNode); // Parse the first argument
 
         // Check for more arguments separated by commas
         if (match("Delimiter ,")) {
-            System.err.println("rcursion in args_list"+ tokens.get(currentTokenIndex).value);
+            tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
             advance(); // Consume the comma token
-            args_list(); // Parse the next argument
+            args_list(parentNode); // Parse the next argument
         }
     }
-
  
 
 }
