@@ -739,13 +739,21 @@ public class SyntaxAnalyzer {
 
     private void iteration_stmt(TextInBox parentNode) {
         if (match("Keyword while")) {
+            TextInBox whilestmt = new TextInBox("While Statement",100,20);
+            tree.addChild(parentNode,whilestmt);
+
+            tree.addChild(whilestmt,new TextInBox(getTokenData(),100,20));
+
+
             advance();
             if (match("Delimiter \\(")) {
+                tree.addChild(whilestmt,new TextInBox(getTokenData(),80,20));
                 advance();
-                expression(parentNode);
+                expression(whilestmt);
                 if (match("Delimiter \\)")) {
+                    tree.addChild(whilestmt,new TextInBox(getTokenData(),80,20));
                     advance();
-                    statement(parentNode);
+                    statement(whilestmt);
                 } else {
                     System.out.println("Syntax Error missing )");
                 }
@@ -824,16 +832,27 @@ public class SyntaxAnalyzer {
                 System.out.println("Syntax Error missing (");
             }
         } else if (match("Keyword do")) {
+            TextInBox dostmt = new TextInBox("Do Statement",100,20);
+            tree.addChild(parentNode,dostmt);
+
+            tree.addChild(dostmt,new TextInBox(getTokenData(),100,20));
             advance();
-            //statement();
+            statement(dostmt);
             if (match("Keyword while")) {
+                TextInBox whilestmt = new TextInBox("Keyword",100,20);
+                tree.addChild(dostmt,whilestmt);
+                tree.addChild(whilestmt,new TextInBox(getTokenData(),100,20));
+
                 advance();
                 if (match("Delimiter \\(")) {
+                    tree.addChild(dostmt,new TextInBox(getTokenData(),80,20));
                     advance();
-                   // expression();
+                   expression(dostmt);
                     if (match("Delimiter \\)")) {
+                        tree.addChild(dostmt,new TextInBox(getTokenData(),80,20));
                         advance();
                         if (match("Delimiter ;")) {
+                            tree.addChild(dostmt,new TextInBox(getTokenData(),80,20));
                             advance();
                         } else {
                             System.out.println("Syntax Error missing ;");
@@ -1321,7 +1340,7 @@ public class SyntaxAnalyzer {
 
 
             else {
-                TextInBox idtoken2 = new TextInBox("Identifiejjjjjjr",80,20);
+                TextInBox idtoken2 = new TextInBox("Identifier",80,20);
                 tree.addChild(expressionnode,idtoken2);
                 tree.addChild(idtoken2,new TextInBox(tokens.get(currentIndex).value,80,20));
                 // It's a regular identifier
