@@ -235,9 +235,9 @@ public class SyntaxAnalyzer {
        
      
         if (currentTokenIndex < tokens.size() && tokens.get(currentTokenIndex).type.matches(expected)) {
-            System.out.println("Current token index: " + currentTokenIndex);
+            //system.out.println("Current token index: " + currentTokenIndex);
 
-            System.out.println("Matched: " + tokens.get(currentTokenIndex).type + " " + tokens.get(currentTokenIndex).value);
+            //system.out.println("Matched: " + tokens.get(currentTokenIndex).type + " " + tokens.get(currentTokenIndex).value);
             return true;
         } else {
             return false;
@@ -274,13 +274,13 @@ public class SyntaxAnalyzer {
 
     public void advance() {
         if (currentTokenIndex >= tokens.size()-1) {
-            System.out.println("End of tokens"+ currentTokenIndex);
+            //system.out.println("End of tokens"+ currentTokenIndex);
             return;
             
         }
         this.currentTokenIndex++;
 
-        System.out.println("Advancing to: " + tokens.get(currentTokenIndex).type + " " + tokens.get(currentTokenIndex).value);
+        //system.out.println("Advancing to: " + tokens.get(currentTokenIndex).type + " " + tokens.get(currentTokenIndex).value);
     }
 
     private String getTokenData()
@@ -320,7 +320,7 @@ public class SyntaxAnalyzer {
         // Show the panel in a dialog
         showInDialog(panel);
 
-        System.out.println("Parsing complete.");
+        //system.out.println("Parsing complete.");
 
     }
 
@@ -373,7 +373,8 @@ public class SyntaxAnalyzer {
                     // pointer declaration
 
                 } else if (match("Delimiter \\(")) {
-                    System.out.println("Function declaration in var dec");
+                   //
+                  // System.out.println("Function declaration in var dec");
                     retract();
                     fun_declaration(decl);
              
@@ -428,11 +429,11 @@ public class SyntaxAnalyzer {
                 tree.addChild(idtoken,new TextInBox(getTokenData(),140,40));
 
                 advance();
-                System.out.println("Strussdsdct i am her");
+                //system.out.println("Strussdsdct i am her");
 
                 if (match("Delimiter \\{")) {
                     tree.addChild(structnode,new TextInBox(getTokenData(),140,40));
-                    System.out.println("Struct i am her");
+                    //system.out.println("Struct i am her");
                     advance();
                     struct_var_declaration_list(structnode);
                     if (match("Delimiter \\}")) {
@@ -441,7 +442,7 @@ public class SyntaxAnalyzer {
                         if (match("Delimiter ;")) {
                             tree.addChild(structnode,new TextInBox(getTokenData(),140,40));
                             advance();
-                            System.out.println("Struct declaration");
+                            //system.out.println("Struct declaration");
                         } else {
                             System.out.println("Syntax Error missing ;");
                             System.exit(1); // Exit with error code 1
@@ -513,6 +514,7 @@ public class SyntaxAnalyzer {
             advance();
         } else {
             System.out.println("Syntax Error missing type specifier");
+           
         }
     }
 
@@ -570,9 +572,9 @@ public class SyntaxAnalyzer {
         tree.addChild(parentNode,compoundstmt);
         if (match("Delimiter \\{")) {
             tree.addChild(compoundstmt, new TextInBox(getTokenData(),140,40));
-            System.out.println("Compound statement");
+            //system.out.println("Compound statement");
             advance();
-            System.out.println("Compound statement  "+ tokens.get(currentTokenIndex).value);
+            //system.out.println("Compound statement  "+ tokens.get(currentTokenIndex).value);
             // int
             statement_list(compoundstmt);
             if (match("Delimiter \\}")) {
@@ -580,9 +582,9 @@ public class SyntaxAnalyzer {
 
 
                 advance();
-                System.out.println("Compound statement done");
+                //system.out.println("Compound statement done");
             } else {
-                System.out.println("Compound statement  "+ tokens.get(currentTokenIndex).value);
+                //system.out.println("Compound statement  "+ tokens.get(currentTokenIndex).value);
 
                 System.err.println("Syntax Error missing }");
             }
@@ -595,7 +597,7 @@ public class SyntaxAnalyzer {
 
     private void statement_list(TextInBox parentNode)  {
         if (match(TYPE_SPECIFIER) || match(IDENTIFIER) || match("Keyword if") || match("Keyword while") || match("Keyword for") || match("Keyword do") || match("Keyword return") || match("Delimiter \\{" )) {
-            System.out.println("---------------------------------------------------------------------------Statement list");
+            //system.out.println("---------------------------------------------------------------------------Statement list");
 
             statement(parentNode);
             statement_list(parentNode);
@@ -622,7 +624,7 @@ public class SyntaxAnalyzer {
         } else if (match(IDENTIFIER)) {
             expression_stmt(stament);
         } else if (match("Keyword if")) {
-            System.out.println("Selection statement entered");
+            //system.out.println("Selection statement entered");
             selection_stmt(stament);
         } else if (match("Keyword while") || match("Keyword for") || match("Keyword do")) {
             System.err.println("Iteration statement entered");
@@ -781,7 +783,7 @@ public class SyntaxAnalyzer {
                     }
 
                     if (match("Delimiter \\)")) {
-                        System.out.println("For loop done");
+                        //system.out.println("For loop done");
                         advance();
                         statement(forstmt);
                     } else {
@@ -896,7 +898,7 @@ public class SyntaxAnalyzer {
                     if (match("Delimiter ;")) {
                         tree.addChild(enumNode,new TextInBox(getTokenData(),140,40));
                         advance();
-                        System.out.println("Enum declaration Done");
+                        //system.out.println("Enum declaration Done");
                     } else {
                         System.out.println("Syntax Error missing ; 888");
                     }
@@ -957,7 +959,7 @@ public class SyntaxAnalyzer {
             tree.addChild(vardec, new TextInBox(getTokenData(), 80, 20));
 
             advance();
-            System.out.println("Variable declaration with assignment done");
+            //system.out.println("Variable declaration with assignment done");
             
            }else {
                System.out.println("Syntax Error missing in assignment  ;");
@@ -968,7 +970,7 @@ public class SyntaxAnalyzer {
             tree.addChild(vardec, new TextInBox(getTokenData(), 80, 20));
 
             advance();
-            System.out.println("Variable declaration");
+            //system.out.println("Variable declaration");
             return;
           
         }else{
@@ -1160,7 +1162,7 @@ public class SyntaxAnalyzer {
         TextInBox expressionnode = new TextInBox("Unary Exp",100,20);
 
         if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
-            System.out.println("Parsed primary expression");
+            //system.out.println("Parsed primary expression");
             primary_expression(parentNode); 
 
         } else if (match("Operator \\+") || match("Operator -") || match("Operator ~") || match("Operator !") || match("Operator \\*") || match("Operator &") || match("Operator sizeof")) {
@@ -1190,7 +1192,7 @@ public class SyntaxAnalyzer {
             boolean isPrevIdentifier = prevIndex >= 0 && tokens.get(prevIndex).type.matches(IDENTIFIER);
             boolean isNextIdentifier = nextIndex < tokens.size() && tokens.get(nextIndex).type.matches(IDENTIFIER);
 
-            System.out.println("TESTTT");
+            //system.out.println("TESTTT");
 
             String unaryOp = tokens.get(currentTokenIndex).value;
             tree.addChild(expressionnode,new TextInBox(getTokenData(),140,40));
@@ -1214,7 +1216,7 @@ public class SyntaxAnalyzer {
                 advance();
 
                 // Parse the post-increment/decrement expression
-                System.out.println("Parsed post-" + unaryOp + " expression");
+                //system.out.println("Parsed post-" + unaryOp + " expression");
             }
             // Arithmtic op
         else if(match(" Operator \\+ ") || match(" Operator - ") || match(" Operator * ") || match(" Operator / ") || match(" Operator % "))
@@ -1274,14 +1276,14 @@ public class SyntaxAnalyzer {
 
         TextInBox expressionnode = new TextInBox("Primary Exp",100,20);
         tree.addChild(parentNode,expressionnode);
-        System.out.println("Entering primary_expression()");
+        //system.out.println("Entering primary_expression()");
 
         if (match(NUM)) {
             tree.addChild(expressionnode,new TextInBox(getTokenData(),100,20));
 
-            System.out.println("Parsed number: " + tokens.get(currentTokenIndex).value);
+            //system.out.println("Parsed number: " + tokens.get(currentTokenIndex).value);
             advance(); // Consume the number token
-            System.out.println("Current token index: " + currentTokenIndex);
+            //system.out.println("Current token index: " + currentTokenIndex);
 
             arrayretract = false;
         } else if (match("Delimiter \\(")) {
@@ -1328,7 +1330,7 @@ public class SyntaxAnalyzer {
                 currentTokenIndex = currentIndex; // Reset index
                 // Handle regular identifier logic here
 
-                System.out.println("Parsed identifier: " + tokens.get(currentIndex).value);
+                //system.out.println("Parsed identifier: " + tokens.get(currentIndex).value);
                 advance(); 
 
                 // Check if the next token is a unary operator
@@ -1432,7 +1434,7 @@ public class SyntaxAnalyzer {
         
         if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(") || match("String Literal") || match("Character Literal")) {
             
-            System.out.println("Entering args_opt() kskskskskskskskk");
+            //system.out.println("Entering args_opt() kskskskskskskskk");
 
             args_list(parentNode); // Parse the arguments list
         } else {
@@ -1445,7 +1447,7 @@ public class SyntaxAnalyzer {
     }
 
     private void args_list(TextInBox parentNode) {
-        System.out.println("Entering args_list()");
+        //system.out.println("Entering args_list()");
 
 
 
