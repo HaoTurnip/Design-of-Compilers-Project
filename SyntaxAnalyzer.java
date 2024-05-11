@@ -285,6 +285,10 @@ public class SyntaxAnalyzer {
 
     private String getTokenData()
     {
+        if (tokens.get(currentTokenIndex).type.matches(IDENTIFIER)) {
+            return tokens.get(currentTokenIndex).type.substring(11);
+            
+        }
         return tokens.get(currentTokenIndex).value;
     }
 
