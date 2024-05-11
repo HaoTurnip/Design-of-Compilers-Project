@@ -512,7 +512,10 @@ public class SyntaxAnalyzer {
             param_list(parentNode);
         } else if (match("Keyword void")) {
             advance();
-        } else {
+        } else if (match("Delimiter \\)")) {
+            return;
+        }
+        else {
             System.out.println("Syntax Error missing type specifier");
            
         }
