@@ -42,8 +42,6 @@ public class Main extends JFrame {
         outputTextArea.setForeground(textForeground);
         outputTextArea.setFont(new Font("Minecraft", Font.PLAIN, 16));
 
-
-
         analyzeButton = new JButton("Tokenize this");
         createParseTree = new JButton("Parse this");
         analyzeButton.setSize(30, 30);
@@ -98,8 +96,6 @@ public class Main extends JFrame {
         panel.add(outputPanel, BorderLayout.EAST);
         panel.add(buttonPanel, BorderLayout.SOUTH);
 
- 
-
         getContentPane().add(panel);
         pack();
         setLocationRelativeTo(null); // Center the window
@@ -108,7 +104,7 @@ public class Main extends JFrame {
         redirectConsoleOutput();
 
         // Initialize file
-        file = new File("input.c"); // Relative path
+        file = new File("Design-of-Compilers-Project/input.c"); // Relative path
 
         // Load content of file into inputTextArea
         loadFileContent();
@@ -130,6 +126,11 @@ public class Main extends JFrame {
                 saveChanges();
             }
         });
+
+        // Add the transparent glass pane with scanline effect
+        ScanlineGlassPane glassPane = new ScanlineGlassPane();
+        setGlassPane(glassPane);
+        glassPane.setVisible(true); // Make the glass pane visible
     }
 
     private void redirectConsoleOutput() {
@@ -201,5 +202,43 @@ public class Main extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Main::new);
+    }
+
+    // Glass pane class for CRT scanline effect
+    private static class ScanlineGlassPane extends JComponent {
+        private static final Color SCANLINE_COLOR = new Color(0, 128, 0, 75); // Dark green with transparency
+        private static final int SCANLINE_HEIGHT = 2; // Height of each scanline
+        private static final int SCANLINE_GAP = 3; // Gap between scanlines
+        private static final int SCANLINE_SPEED = 1; // Speed of scanline movement
+        private int scanlinePosition = 0; // Current position of the scanline
+
+        public ScanlineGlassPane() {
+            setOpaque(false); // Make the glass pane transparent
+            startScanlineAnimation();
+        }
+
+        private void startScanlineAnimation() {
+            Timer timer = new Timer(20, e -> {
+                scanlinePosition += SCANLINE_SPEED;
+                if (scanlinePosition >= SCANLINE_HEIGHT + SCANLINE_GAP) {
+                    scanlinePosition = 0;
+                }
+                repaint();
+            });
+            timer.start();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g.create();
+            g2d.setColor(SCANLINE_COLOR);
+            int y = scanlinePosition;
+            while (y < getHeight()) {
+                g2d.fillRect(0, y, getWidth(), SCANLINE_HEIGHT);
+                y += SCANLINE_HEIGHT + SCANLINE_GAP;
+            }
+            g2d.dispose();
+        }
     }
 }

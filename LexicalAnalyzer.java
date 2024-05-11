@@ -258,7 +258,7 @@ public class LexicalAnalyzer {
     }
 
     public static void main(String[] args) {
-        String filePath = "/Users/kareem/Documents/Design-of-Compilers-Project/input.c"; // replace with your file path
+        String filePath = "Design-of-Compilers-Project/input.c"; // replace with your file path
         StringBuilder content = new StringBuilder();
         try {
             Files.lines(Paths.get(filePath)).forEach(line -> content.append(line).append("\n"));

@@ -1,11 +1,5 @@
-int main() {
-int x = 5 + 20;
+int main(){
 
-if(x<4){
-x++;
-}
-
-print("ksd");
-
+print("hello world", 'h');
 
 }

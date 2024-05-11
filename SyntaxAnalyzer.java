@@ -206,7 +206,7 @@ public class SyntaxAnalyzer {
     private List<LexicalAnalyzer.Token> tokens;
 
 
-    private TextInBox root = new TextInBox("Program",80,20);
+    private TextInBox root = new TextInBox("Program",140,40);
 
     DefaultTreeForTreeLayout<TextInBox> tree = new DefaultTreeForTreeLayout<>(root);
     
@@ -267,7 +267,7 @@ public class SyntaxAnalyzer {
 
     public void addChild(TextInBox parent,String childname)
     {
-        tree.addChild(root,new TextInBox(childname,80,20));
+        tree.addChild(root,new TextInBox(childname,140,40));
     }
 
 
@@ -341,16 +341,16 @@ public class SyntaxAnalyzer {
 
     private void declaration(TextInBox decnode) {
 
-        TextInBox decl = new TextInBox("decleration",80,20);
+        TextInBox decl = new TextInBox("decleration",140,40);
         tree.addChild(decnode,decl);
 
-        TextInBox keywordnode = new TextInBox("Keyword",80,20);
+        TextInBox keywordnode = new TextInBox("Keyword",140,40);
 
 
         if (match(TYPE_SPECIFIER) && !tokens.get(currentTokenIndex).value.equals("struct") && !tokens.get(currentTokenIndex).value.equals("enum") && !tokens.get(currentTokenIndex).value.equals("typedef") ) {
-            TextInBox typespecifier = new TextInBox("Type Specifier",80,20);
+            TextInBox typespecifier = new TextInBox("Type Specifier",140,40);
             tree.addChild(decl,typespecifier);
-            tree.addChild(typespecifier,new TextInBox(getTokenData(),80,20));
+            tree.addChild(typespecifier,new TextInBox(getTokenData(),140,40));
 
             advance();
           if (match(IDENTIFIER)) {
@@ -359,9 +359,9 @@ public class SyntaxAnalyzer {
                 advance();
               if (match("Delimiter \\[")) {
 
-                TextInBox arraydec = new TextInBox("Array declaration",80,20);
+                TextInBox arraydec = new TextInBox("Array declaration",140,40);
                 tree.addChild(decl,arraydec);
-                tree.addChild(arraydec,new TextInBox(getTokenData(),80,20));
+                tree.addChild(arraydec,new TextInBox(getTokenData(),140,40));
                     advance();
                     // array declaration       
                 } else if (match("Operator \\*")) {
@@ -413,33 +413,33 @@ public class SyntaxAnalyzer {
 
 
     private void struct_declaration(TextInBox parentNode) {
-        TextInBox structnode = new TextInBox("Struct Declaration",80,20);
+        TextInBox structnode = new TextInBox("Struct Declaration",140,40);
         tree.addChild(parentNode,structnode);
 
-        TextInBox keywordnode = new TextInBox("Keyword",80,20);
+        TextInBox keywordnode = new TextInBox("Keyword",140,40);
         tree.addChild(structnode,keywordnode);
-        tree.addChild(keywordnode,new TextInBox(tokens.get(currentTokenIndex-1).value,80,20));
+        tree.addChild(keywordnode,new TextInBox(tokens.get(currentTokenIndex-1).value,140,40));
 
 
         
             if (match(IDENTIFIER)) {
-                TextInBox idtoken = new TextInBox("Identifier",80,20);
+                TextInBox idtoken = new TextInBox("Identifier",140,40);
                 tree.addChild(structnode,idtoken);
-                tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
+                tree.addChild(idtoken,new TextInBox(getTokenData(),140,40));
 
                 advance();
                 System.out.println("Strussdsdct i am her");
 
                 if (match("Delimiter \\{")) {
-                    tree.addChild(structnode,new TextInBox(getTokenData(),80,20));
+                    tree.addChild(structnode,new TextInBox(getTokenData(),140,40));
                     System.out.println("Struct i am her");
                     advance();
                     struct_var_declaration_list(structnode);
                     if (match("Delimiter \\}")) {
-                        tree.addChild(structnode,new TextInBox(getTokenData(),80,20));
+                        tree.addChild(structnode,new TextInBox(getTokenData(),140,40));
                         advance();
                         if (match("Delimiter ;")) {
-                            tree.addChild(structnode,new TextInBox(getTokenData(),80,20));
+                            tree.addChild(structnode,new TextInBox(getTokenData(),140,40));
                             advance();
                             System.out.println("Struct declaration");
                         } else {
@@ -466,23 +466,23 @@ public class SyntaxAnalyzer {
     }
 
     private void fun_declaration(TextInBox parentNode) {
-        TextInBox funnode = new TextInBox("Function Declaration",80,20);
+        TextInBox funnode = new TextInBox("Function Declaration",140,40);
 
         tree.addChild(parentNode,funnode);
 
       if (match(IDENTIFIER)) {
-                TextInBox idtoken = new TextInBox("Identifier",80,20);
+                TextInBox idtoken = new TextInBox("Identifier",140,40);
                 tree.addChild(funnode,idtoken);
-                tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
+                tree.addChild(idtoken,new TextInBox(getTokenData(),140,40));
                 advance();
                 if (match("Delimiter \\(")) {
 
-                    tree.addChild(funnode,new TextInBox(getTokenData(),80,20));
+                    tree.addChild(funnode,new TextInBox(getTokenData(),140,40));
                     advance();
                    params(parentNode);
                     if (match("Delimiter \\)")) {
                         
-                        tree.addChild(funnode,new TextInBox(getTokenData(),80,20));
+                        tree.addChild(funnode,new TextInBox(getTokenData(),140,40));
                         advance();
                         compound_stmt(funnode);
                     } else {
@@ -529,23 +529,23 @@ public class SyntaxAnalyzer {
     private void param(TextInBox parentNode) {
         if (match(TYPE_SPECIFIER)) {
 
-            TextInBox typespecifier = new TextInBox("Type Specifier",80,20);
+            TextInBox typespecifier = new TextInBox("Type Specifier",140,40);
             tree.addChild(parentNode,typespecifier);
-            tree.addChild(typespecifier,new TextInBox(getTokenData(),80,20));
+            tree.addChild(typespecifier,new TextInBox(getTokenData(),140,40));
 
 
             advance();
             if (match(IDENTIFIER)) {
-                TextInBox idtoken = new TextInBox("Identifier",80,20);
+                TextInBox idtoken = new TextInBox("Identifier",140,40);
                 tree.addChild(parentNode,idtoken);
-                tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
+                tree.addChild(idtoken,new TextInBox(getTokenData(),140,40));
 
                 advance();
                 if (match("Delimiter \\[")) {
-                    tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+                    tree.addChild(parentNode,new TextInBox(getTokenData(),140,40));
                     advance();
                     if (match("Delimiter \\]")) {
-                        tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+                        tree.addChild(parentNode,new TextInBox(getTokenData(),140,40));
                         advance();
                     } else {
                         System.out.println("Syntax Error missing ]");
@@ -566,17 +566,17 @@ public class SyntaxAnalyzer {
     }
 
     private void compound_stmt(TextInBox parentNode) {
-        TextInBox compoundstmt = new TextInBox("Compound Statement",80,20);
+        TextInBox compoundstmt = new TextInBox("Compound Statement",140,40);
         tree.addChild(parentNode,compoundstmt);
         if (match("Delimiter \\{")) {
-            tree.addChild(compoundstmt, new TextInBox(getTokenData(),80,20));
+            tree.addChild(compoundstmt, new TextInBox(getTokenData(),140,40));
             System.out.println("Compound statement");
             advance();
             System.out.println("Compound statement  "+ tokens.get(currentTokenIndex).value);
             // int
             statement_list(compoundstmt);
             if (match("Delimiter \\}")) {
-                tree.addChild(compoundstmt, new TextInBox(getTokenData(),80,20));
+                tree.addChild(compoundstmt, new TextInBox(getTokenData(),140,40));
 
 
                 advance();
@@ -605,13 +605,13 @@ public class SyntaxAnalyzer {
     }
 
     private void statement(TextInBox parentNode) {
-        TextInBox stament = new TextInBox("Statement",80,20);
+        TextInBox stament = new TextInBox("Statement",140,40);
         tree.addChild(parentNode,stament);
         if (match(TYPE_SPECIFIER)) {
            
-            TextInBox typespecifier = new TextInBox("Type Specifier",80,20);
+            TextInBox typespecifier = new TextInBox("Type Specifier",140,40);
             tree.addChild(stament,typespecifier);
-            tree.addChild(typespecifier,new TextInBox(getTokenData(),80,20));
+            tree.addChild(typespecifier,new TextInBox(getTokenData(),140,40));
 
             advance();
             if (match(IDENTIFIER)){
@@ -644,11 +644,11 @@ public class SyntaxAnalyzer {
 
        if (match(IDENTIFIER))
        {
-        TextInBox expressionstmt = new TextInBox("Expression Stmt",80,20);
+        TextInBox expressionstmt = new TextInBox("Expression Stmt",140,40);
         tree.addChild(parentNode,expressionstmt);
-        TextInBox idtoken = new TextInBox("Identifier",80,20);
+        TextInBox idtoken = new TextInBox("Identifier",140,40);
         tree.addChild(expressionstmt,idtoken);
-        tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
+        tree.addChild(idtoken,new TextInBox(getTokenData(),140,40));
 
 
         expression(expressionstmt);
@@ -656,7 +656,7 @@ public class SyntaxAnalyzer {
 
 
         if (match("Delimiter ;")) {
-            tree.addChild(expressionstmt,new TextInBox(getTokenData(),80,20));
+            tree.addChild(expressionstmt,new TextInBox(getTokenData(),140,40));
             advance();
         } else {
             System.out.println("Syntax Error missing ;111");
@@ -711,11 +711,11 @@ public class SyntaxAnalyzer {
 
             advance();
             if (match("Delimiter \\(")) {
-                tree.addChild(whilestmt,new TextInBox(getTokenData(),80,20));
+                tree.addChild(whilestmt,new TextInBox(getTokenData(),140,40));
                 advance();
                 expression(whilestmt);
                 if (match("Delimiter \\)")) {
-                    tree.addChild(whilestmt,new TextInBox(getTokenData(),80,20));
+                    tree.addChild(whilestmt,new TextInBox(getTokenData(),140,40));
                     advance();
                     statement(whilestmt);
                 } else {
@@ -732,14 +732,14 @@ public class SyntaxAnalyzer {
     
             advance();
             if (match("Delimiter \\(")) {
-                tree.addChild(forstmt,new TextInBox(getTokenData(),80,20));
+                tree.addChild(forstmt,new TextInBox(getTokenData(),140,40));
 
                 advance();
 
                 if (match(TYPE_SPECIFIER)){
-                    TextInBox typespecifier = new TextInBox("Type Specifier",80,20);
+                    TextInBox typespecifier = new TextInBox("Type Specifier",140,40);
                     tree.addChild(forstmt,typespecifier);
-                    tree.addChild(typespecifier,new TextInBox(getTokenData(),80,20));
+                    tree.addChild(typespecifier,new TextInBox(getTokenData(),140,40));
 
 
 
@@ -773,7 +773,7 @@ public class SyntaxAnalyzer {
                     expression(forstmt);
 
                     if (match("Delimiter ;")) {
-                        tree.addChild(forstmt,new TextInBox(getTokenData(),80,20));
+                        tree.addChild(forstmt,new TextInBox(getTokenData(),140,40));
                         advance();
                         expression(forstmt);
                     } else {
@@ -809,14 +809,14 @@ public class SyntaxAnalyzer {
 
                 advance();
                 if (match("Delimiter \\(")) {
-                    tree.addChild(dostmt,new TextInBox(getTokenData(),80,20));
+                    tree.addChild(dostmt,new TextInBox(getTokenData(),140,40));
                     advance();
                    expression(dostmt);
                     if (match("Delimiter \\)")) {
-                        tree.addChild(dostmt,new TextInBox(getTokenData(),80,20));
+                        tree.addChild(dostmt,new TextInBox(getTokenData(),140,40));
                         advance();
                         if (match("Delimiter ;")) {
-                            tree.addChild(dostmt,new TextInBox(getTokenData(),80,20));
+                            tree.addChild(dostmt,new TextInBox(getTokenData(),140,40));
                             advance();
                         } else {
                             System.out.println("Syntax Error missing ; 6666");
@@ -837,11 +837,11 @@ public class SyntaxAnalyzer {
 
     private void return_statement(TextInBox parentNode) {
         if (match("Keyword return")) {
-            TextInBox returnstmt = new TextInBox("Return Stmt",80,20);
+            TextInBox returnstmt = new TextInBox("Return Stmt",140,40);
             tree.addChild(parentNode,returnstmt);
-            TextInBox keyword = new TextInBox("Keyword",80,20);
+            TextInBox keyword = new TextInBox("Keyword",140,40);
             tree.addChild(returnstmt,keyword);
-            tree.addChild(keyword,new TextInBox(getTokenData(),80,20));
+            tree.addChild(keyword,new TextInBox(getTokenData(),140,40));
 
 
             advance();
@@ -873,28 +873,28 @@ public class SyntaxAnalyzer {
 
 
     private void enum_declaration(TextInBox parentNode) {
-        TextInBox enumNode = new TextInBox("Enum Declaration",80,20);
+        TextInBox enumNode = new TextInBox("Enum Declaration",140,40);
         tree.addChild(parentNode,enumNode);
 
-        TextInBox keywordnode = new TextInBox("Keyword",80,20);
+        TextInBox keywordnode = new TextInBox("Keyword",140,40);
         tree.addChild(enumNode,keywordnode);
-        tree.addChild(keywordnode,new TextInBox(tokens.get(currentTokenIndex-1).value,80,20));
+        tree.addChild(keywordnode,new TextInBox(tokens.get(currentTokenIndex-1).value,140,40));
        
         if (match(IDENTIFIER)) {
-            TextInBox idtoken = new TextInBox("Identifier",80,20);
+            TextInBox idtoken = new TextInBox("Identifier",140,40);
             tree.addChild(enumNode,idtoken);
-            tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
+            tree.addChild(idtoken,new TextInBox(getTokenData(),140,40));
 
             advance();
             if (match("Delimiter \\{")) {
-                tree.addChild(enumNode,new TextInBox(getTokenData(),80,20));
+                tree.addChild(enumNode,new TextInBox(getTokenData(),140,40));
                 advance();
                 enum_var_list(enumNode);
                 if (match("Delimiter \\}")) {
-                    tree.addChild(enumNode,new TextInBox(getTokenData(),80,20));
+                    tree.addChild(enumNode,new TextInBox(getTokenData(),140,40));
                     advance();
                     if (match("Delimiter ;")) {
-                        tree.addChild(enumNode,new TextInBox(getTokenData(),80,20));
+                        tree.addChild(enumNode,new TextInBox(getTokenData(),140,40));
                         advance();
                         System.out.println("Enum declaration Done");
                     } else {
@@ -915,14 +915,14 @@ public class SyntaxAnalyzer {
 
     private void enum_var_list(TextInBox parentNode) {
         if (match(IDENTIFIER)) {
-            TextInBox idtoken = new TextInBox("Identifier",80,20);
+            TextInBox idtoken = new TextInBox("Identifier",140,40);
             tree.addChild(parentNode,idtoken);
-            tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
+            tree.addChild(idtoken,new TextInBox(getTokenData(),140,40));
             advance();
 
 
             if (match("Delimiter ,")) {
-                tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+                tree.addChild(parentNode,new TextInBox(getTokenData(),140,40));
                 advance();
                 enum_var_list(parentNode);
             } else {
@@ -934,7 +934,7 @@ public class SyntaxAnalyzer {
     }
     private void var_declaration(TextInBox parentNode) {
         // Consume the keyword token
-        TextInBox vardec = new TextInBox("Variable declaration",80,20);
+        TextInBox vardec = new TextInBox("Variable declaration",140,40);
         tree.addChild(parentNode,vardec);
 
         if (match(IDENTIFIER)) {
@@ -985,26 +985,26 @@ public class SyntaxAnalyzer {
 
     private void expression(TextInBox parentNode)
     {
-        TextInBox expressionnode = new TextInBox("Expression",80,20);
+        TextInBox expressionnode = new TextInBox("Expression",140,40);
         tree.addChild(parentNode,expressionnode);
         conditional_expression(expressionnode); // Parse the conditional expression
     }
 
     private void conditional_expression(TextInBox parentNode) {
-        TextInBox expressionnode = new TextInBox("Cond Exp",80,20);
+        TextInBox expressionnode = new TextInBox("Cond Exp",140,40);
 
         logical_or_expression(parentNode); // Parse the logical OR expression
 
         if (match("Operator \\? ")) {
             tree.addChild(parentNode,expressionnode);
-            tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),140,40));
             advance(); // Consume the '?' token
 
             expression(expressionnode);
 
             // Check for the colon ':' token
             if (match("Operator :")) {
-                tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
+                tree.addChild(expressionnode,new TextInBox(getTokenData(),140,40));
                 advance(); // Consume the ':' token
 
                 expression(expressionnode);
@@ -1018,12 +1018,12 @@ public class SyntaxAnalyzer {
 
     private void logical_or_expression(TextInBox parentNode)
     {
-        TextInBox expressionnode = new TextInBox("Logical OR Exp",80,20);
+        TextInBox expressionnode = new TextInBox("Logical OR Exp",140,40);
 
         logical_and_expression(parentNode);
 
         while (match("Operator \\|\\|")) {
-            tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),140,40));
 
             advance(); // Consume the '||' token
 
@@ -1042,7 +1042,7 @@ public class SyntaxAnalyzer {
 
     private void logical_and_expression(TextInBox parentNode)
     {
-        TextInBox expressionnode = new TextInBox("Logical AND Exp",80,20);
+        TextInBox expressionnode = new TextInBox("Logical AND Exp",140,40);
 
 
     //    logical_and_expression(parentNode);
@@ -1051,7 +1051,7 @@ public class SyntaxAnalyzer {
 
         while (match("Operator &&")) {
             tree.addChild(parentNode,expressionnode);
-            tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),140,40));
             advance(); // Consume the '&&' token
 
             // Check if there is a valid token after the logical AND operator
@@ -1068,14 +1068,14 @@ public class SyntaxAnalyzer {
 
     private void equality_expression(TextInBox parentNode)
     {
-        TextInBox expressionnode = new TextInBox("Equality Exp",80,20);
+        TextInBox expressionnode = new TextInBox("Equality Exp",140,40);
 
         relational_expression(parentNode);
 
 
         while (match("Operator ==") || match("Operator !=")) {
             tree.addChild(parentNode,expressionnode);
-            tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),140,40));
             advance(); // Consume the equality operator
 
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
@@ -1091,12 +1091,12 @@ public class SyntaxAnalyzer {
 
     private void relational_expression(TextInBox parentNode)
     {
-        TextInBox expressionnode = new TextInBox("Relational Exp",80,20);
+        TextInBox expressionnode = new TextInBox("Relational Exp",140,40);
         additive_expression(parentNode);
 
         while (match("Operator <") || match("Operator >") || match("Operator <=") || match("Operator >=")) {
             tree.addChild(parentNode,expressionnode);
-            tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),140,40));
             advance(); // Consume the relational operator
             // Check if there is a valid token after the relational operator
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
@@ -1112,13 +1112,13 @@ public class SyntaxAnalyzer {
 
     private void additive_expression(TextInBox parentNode)
     {
-        TextInBox expressionnode = new TextInBox("Additive Exp",80,20);
+        TextInBox expressionnode = new TextInBox("Additive Exp",140,40);
         multiplicative_expression(parentNode);
 
         while (match("Operator \\+") || match("Operator -")) {
            
         tree.addChild(parentNode,expressionnode);
-            tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),140,40));
             advance(); // Consume the additive operator
             // Check if there is a valid token after the additive operator
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
@@ -1164,7 +1164,7 @@ public class SyntaxAnalyzer {
             primary_expression(parentNode); 
 
         } else if (match("Operator \\+") || match("Operator -") || match("Operator ~") || match("Operator !") || match("Operator \\*") || match("Operator &") || match("Operator sizeof")) {
-            tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+            tree.addChild(parentNode,new TextInBox(getTokenData(),140,40));
 
             advance(); // Consume the unary operator
 
@@ -1193,7 +1193,7 @@ public class SyntaxAnalyzer {
             System.out.println("TESTTT");
 
             String unaryOp = tokens.get(currentTokenIndex).value;
-            tree.addChild(expressionnode,new TextInBox(getTokenData(),80,20));
+            tree.addChild(expressionnode,new TextInBox(getTokenData(),140,40));
 
             advance(); // Consume the unary operator
 
@@ -1206,10 +1206,10 @@ public class SyntaxAnalyzer {
 
             }
             else if (match(IDENTIFIER)) {
-                TextInBox idtoken = new TextInBox("Identifer",80,20);
+                TextInBox idtoken = new TextInBox("Identifer",140,40);
                 tree.addChild(expressionnode,idtoken);
 
-                tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
+                tree.addChild(idtoken,new TextInBox(getTokenData(),140,40));
                 
                 advance();
 
@@ -1227,7 +1227,7 @@ public class SyntaxAnalyzer {
             else if (match("Delimeter ;"))
             {
 
-                tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+                tree.addChild(parentNode,new TextInBox(getTokenData(),140,40));
 
 
 
@@ -1244,16 +1244,16 @@ public class SyntaxAnalyzer {
                 return;
             }
         }else if (match("String Literal")) {
-            TextInBox stringnode = new TextInBox("String Literal",80,20);
+            TextInBox stringnode = new TextInBox("String Literal",140,40);
             tree.addChild(parentNode,stringnode);
-            tree.addChild(stringnode,new TextInBox(getTokenData(),80,20));
+            tree.addChild(stringnode,new TextInBox(getTokenData(),140,40));
 
 
             advance();
         }else if (match("Character Literal")) {
-            TextInBox charnode = new TextInBox("Character Literal",80,20);
+            TextInBox charnode = new TextInBox("Character Literal",140,40);
             tree.addChild(parentNode,charnode);
-            tree.addChild(charnode,new TextInBox(getTokenData(),80,20));
+            tree.addChild(charnode,new TextInBox(getTokenData(),140,40));
 
             advance();
             
@@ -1321,9 +1321,9 @@ public class SyntaxAnalyzer {
 
 
             }             else {
-                TextInBox idtoken2 = new TextInBox("Identifier",80,20);
+                TextInBox idtoken2 = new TextInBox("Identifier",140,40);
                 tree.addChild(expressionnode,idtoken2);
-                tree.addChild(idtoken2,new TextInBox(tokens.get(currentIndex).value,80,20));
+                tree.addChild(idtoken2,new TextInBox(tokens.get(currentIndex).value,140,40));
                 // It's a regular identifier
                 currentTokenIndex = currentIndex; // Reset index
                 // Handle regular identifier logic here
@@ -1341,16 +1341,16 @@ public class SyntaxAnalyzer {
         
         
         } else if (match("String Literal")){
-            TextInBox stringnode = new TextInBox("String Literal",80,20);
+            TextInBox stringnode = new TextInBox("String Literal",140,40);
             tree.addChild(expressionnode,stringnode);
-            tree.addChild(stringnode,new TextInBox(getTokenData(),80,20));
+            tree.addChild(stringnode,new TextInBox(getTokenData(),140,40));
 
 
                advance();
         } else if (match("Character Literal")){
-            TextInBox charnode = new TextInBox("Character Literal",80,20);
+            TextInBox charnode = new TextInBox("Character Literal",140,40);
             tree.addChild(expressionnode,charnode);
-            tree.addChild(charnode,new TextInBox(getTokenData(),80,20));
+            tree.addChild(charnode,new TextInBox(getTokenData(),140,40));
 
 
                advance();
@@ -1368,10 +1368,10 @@ public class SyntaxAnalyzer {
 
 
     private void function_call(TextInBox parentNode) {
-        TextInBox funcall = new TextInBox("Function Call",80,20);
+        TextInBox funcall = new TextInBox("Function Call",140,40);
         tree.addChild(parentNode,funcall);
         if (match(IDENTIFIER)) {
-            tree.addChild(funcall,new TextInBox(getTokenData(),80,20));
+            tree.addChild(funcall,new TextInBox(getTokenData(),140,40));
 
 
             advance(); 
@@ -1382,7 +1382,7 @@ public class SyntaxAnalyzer {
 
         // Check for left parenthesis
         if (match( "Delimiter \\(")) {
-            tree.addChild(funcall,new TextInBox(getTokenData(),80,20));
+            tree.addChild(funcall,new TextInBox(getTokenData(),140,40));
 
             advance(); 
 
@@ -1401,11 +1401,11 @@ public class SyntaxAnalyzer {
         if (match( "Delimiter \\)")) {
 
            
-            tree.addChild(funcall,new TextInBox(getTokenData(),80,20));
+            tree.addChild(funcall,new TextInBox(getTokenData(),140,40));
             advance(); // Consume the right parenthesis token
 
             while (match("Delemiter \\.")) {
-                tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+                tree.addChild(parentNode,new TextInBox(getTokenData(),140,40));
 
                 advance(); // Consume the dot operator
                 // Repeat function call parsing for chaining
@@ -1454,7 +1454,7 @@ public class SyntaxAnalyzer {
 
         // Check for more arguments separated by commas
         if (match("Delimiter ,")) {
-            tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+            tree.addChild(parentNode,new TextInBox(getTokenData(),140,40));
             advance(); 
             args_list(parentNode); // Parse the next argument
         }
