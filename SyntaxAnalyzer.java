@@ -392,13 +392,8 @@ public class SyntaxAnalyzer {
             advance();
             struct_declaration(decl);
         } else if (match("Keyword enum")  && tokens.get(currentTokenIndex).value.equals("enum") ) {
-            tree.addChild(decl,keywordnode);
-            TextInBox enumkeyword = new TextInBox(getTokenData(),80,20);
-            tree.addChild(keywordnode,enumkeyword); // ENUM KEYWORD
-
-            System.out.println("Enum declaration");
             advance();
-            enum_declaration();
+            enum_declaration(decl);
         } else if (match("Keyword typedef") && tokens.get(currentTokenIndex).value.equals("typedef")) {
             advance();
             // typedef declaration
@@ -894,17 +889,29 @@ public class SyntaxAnalyzer {
     }
 
 
-    private void enum_declaration() {
+    private void enum_declaration(TextInBox parentNode) {
+        TextInBox enumNode = new TextInBox("Enum Declaration",80,20);
+        tree.addChild(parentNode,enumNode);
+
+        TextInBox keywordnode = new TextInBox("Keyword",80,20);
+        tree.addChild(enumNode,keywordnode);
+        tree.addChild(keywordnode,new TextInBox(tokens.get(currentTokenIndex-1).value,80,20));
        
         if (match(IDENTIFIER)) {
+            TextInBox idtoken = new TextInBox("Identifier",80,20);
+            tree.addChild(enumNode,idtoken);
+            tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
 
             advance();
             if (match("Delimiter \\{")) {
+                tree.addChild(enumNode,new TextInBox(getTokenData(),80,20));
                 advance();
-                enum_var_list();
+                enum_var_list(enumNode);
                 if (match("Delimiter \\}")) {
+                    tree.addChild(enumNode,new TextInBox(getTokenData(),80,20));
                     advance();
                     if (match("Delimiter ;")) {
+                        tree.addChild(enumNode,new TextInBox(getTokenData(),80,20));
                         advance();
                         System.out.println("Enum declaration Done");
                     } else {
@@ -923,14 +930,18 @@ public class SyntaxAnalyzer {
 
     
 
-    private void enum_var_list() {
+    private void enum_var_list(TextInBox parentNode) {
         if (match(IDENTIFIER)) {
+            TextInBox idtoken = new TextInBox("Identifier",80,20);
+            tree.addChild(parentNode,idtoken);
+            tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
             advance();
 
 
             if (match("Delimiter ,")) {
+                tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
                 advance();
-                enum_var_list();
+                enum_var_list(parentNode);
             } else {
                 return;
             }
