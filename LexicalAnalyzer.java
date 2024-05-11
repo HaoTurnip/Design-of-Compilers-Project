@@ -270,7 +270,8 @@ public class LexicalAnalyzer {
 
 
         List<Token> tokens = lexicalAnalyzer(content.toString());
-        //SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(tokens);
+        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(tokens);
+        syntaxAnalyzer.parse();
        
 
         printTokens(tokens);

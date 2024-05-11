@@ -653,13 +653,13 @@ public class SyntaxAnalyzer {
 
         expression(expressionstmt);
 
-        advance();
+
 
         if (match("Delimiter ;")) {
             tree.addChild(expressionstmt,new TextInBox(getTokenData(),80,20));
             advance();
         } else {
-            System.out.println("Syntax Error missing ;");
+            System.out.println("Syntax Error missing ;111");
             
         }
        }
@@ -777,7 +777,7 @@ public class SyntaxAnalyzer {
                         advance();
                         expression(forstmt);
                     } else {
-                        System.out.println("Syntax Error missing ;");
+                        System.out.println("Syntax Error missing ; 000");
                     }
 
                     if (match("Delimiter \\)")) {
@@ -790,7 +790,7 @@ public class SyntaxAnalyzer {
                     }
 
                 } else {
-                    System.out.println("Syntax Error missing ;");
+                    System.out.println("Syntax Error missing ; 999");
                 }
             } else {
                 System.out.println("Syntax Error missing (");
@@ -819,7 +819,7 @@ public class SyntaxAnalyzer {
                             tree.addChild(dostmt,new TextInBox(getTokenData(),80,20));
                             advance();
                         } else {
-                            System.out.println("Syntax Error missing ;");
+                            System.out.println("Syntax Error missing ; 6666");
                         }
                     } else {
                         System.out.println("Syntax Error missing )");
@@ -854,7 +854,7 @@ public class SyntaxAnalyzer {
                 if (match("Delimiter ;")) {
                     advance();
                 } else {
-                    System.out.println("Syntax Error missing ;");
+                    System.out.println("Syntax Error missing ; 777");
                 }
             }
         } else {
@@ -898,7 +898,7 @@ public class SyntaxAnalyzer {
                         advance();
                         System.out.println("Enum declaration Done");
                     } else {
-                        System.out.println("Syntax Error missing ;");
+                        System.out.println("Syntax Error missing ; 888");
                     }
                 } else {
                     System.out.println("Syntax Error missing }");
@@ -1243,6 +1243,27 @@ public class SyntaxAnalyzer {
                // System.err.println("Syntax error: Expected identifier after unary operator '" + unaryOp + "'");
                 return;
             }
+        }else if (match("String Literal")) {
+            TextInBox stringnode = new TextInBox("String Literal",80,20);
+            tree.addChild(parentNode,stringnode);
+            tree.addChild(stringnode,new TextInBox(getTokenData(),80,20));
+
+
+            advance();
+        }else if (match("Character Literal")) {
+            TextInBox charnode = new TextInBox("Character Literal",80,20);
+            tree.addChild(parentNode,charnode);
+            tree.addChild(charnode,new TextInBox(getTokenData(),80,20));
+
+            advance();
+            
+        } else {
+            // Error handling: Expected primary expression or unary operator
+            System.err.println("Syntax error: Expected primary expression or unary operator");
+            System.exit(1);
+
+            return;
+            
         }
     }
 
@@ -1299,11 +1320,7 @@ public class SyntaxAnalyzer {
                 // array_call(expressionnode);
 
 
-            }
-
-
-
-            else {
+            }             else {
                 TextInBox idtoken2 = new TextInBox("Identifier",80,20);
                 tree.addChild(expressionnode,idtoken2);
                 tree.addChild(idtoken2,new TextInBox(tokens.get(currentIndex).value,80,20));
@@ -1321,6 +1338,29 @@ public class SyntaxAnalyzer {
                     unary_expression(expressionnode);
                 }
             }
+        
+        
+        } else if (match("String Literal")){
+            TextInBox stringnode = new TextInBox("String Literal",80,20);
+            tree.addChild(expressionnode,stringnode);
+            tree.addChild(stringnode,new TextInBox(getTokenData(),80,20));
+
+
+               advance();
+        } else if (match("Character Literal")){
+            TextInBox charnode = new TextInBox("Character Literal",80,20);
+            tree.addChild(expressionnode,charnode);
+            tree.addChild(charnode,new TextInBox(getTokenData(),80,20));
+
+
+               advance();
+        }
+        else {
+
+            tree.addChild(expressionnode,new TextInBox("Error",100,20));
+            // Error handling: Expected number, identifier, or left parenthesis
+            System.err.println("Syntax error: Expected number, identifier, or expression");
+            arrayretract = false;
         }
     }
 
@@ -1355,6 +1395,7 @@ public class SyntaxAnalyzer {
         
 
         args_opt(funcall);
+        
 
         // Check for right parenthesis
         if (match( "Delimiter \\)")) {
@@ -1372,23 +1413,12 @@ public class SyntaxAnalyzer {
                 retract();
             }
 
-            if(match("Delimiter ;"))
-            {
-                tree.addChild(funcall,new TextInBox(getTokenData(),80,20));
-
-                advance();
-            } else
-            {
-
-                System.err.println("Syntax error: Expected ';' after function call");
-                System.exit(1);
-
-            }
+            
 
 
         } else {
             // Error handling: Expected right parenthesis
-            System.err.println("Syntax error: Expected ')' after function arguments in function call");
+            System.err.println("Syntax error: Expected ')' after function arguments in function call" + tokens.get(currentTokenIndex).value + " " + match("String Literal"));
             System.exit(1);
 
         }
@@ -1399,11 +1429,15 @@ public class SyntaxAnalyzer {
     {
 
 
-        if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
-            System.out.println("Entering args_opt()");
+        
+        if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(") || match("String Literal") || match("Character Literal")) {
+            
+            System.out.println("Entering args_opt() kskskskskskskskk");
 
             args_list(parentNode); // Parse the arguments list
         } else {
+
+
             System.out.println("No arguments found in args_opt()");
 
 
