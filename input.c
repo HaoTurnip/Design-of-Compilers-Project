@@ -1,7 +1,5 @@
-int main(){
-if(x>3){
-int x =3;
-} else{
-int x =4 ;
+int main() {
+for(int i = 0 ; i < 1; i++){
+int x = 3; 
 }
 }

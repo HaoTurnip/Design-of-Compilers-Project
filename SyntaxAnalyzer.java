@@ -386,13 +386,11 @@ public class SyntaxAnalyzer {
             }
 
         } else if (match("Keyword struct") && tokens.get(currentTokenIndex).value.equals("struct")) {
-            tree.addChild(decl,keywordnode);
-            TextInBox structkeyword = new TextInBox(getTokenData(),80,20);
-            tree.addChild(keywordnode,structkeyword);
+
 
 
             advance();
-            struct_declaration();
+            struct_declaration(decl);
         } else if (match("Keyword enum")  && tokens.get(currentTokenIndex).value.equals("enum") ) {
             tree.addChild(decl,keywordnode);
             TextInBox enumkeyword = new TextInBox(getTokenData(),80,20);
@@ -415,19 +413,34 @@ public class SyntaxAnalyzer {
     
 
 
-    private void struct_declaration() {
+    private void struct_declaration(TextInBox parentNode) {
+        TextInBox structnode = new TextInBox("Struct Declaration",80,20);
+        tree.addChild(parentNode,structnode);
+
+        TextInBox keywordnode = new TextInBox("Keyword",80,20);
+        tree.addChild(structnode,keywordnode);
+        tree.addChild(keywordnode,new TextInBox(tokens.get(currentTokenIndex-1).value,80,20));
+
+
         
             if (match(IDENTIFIER)) {
+                TextInBox idtoken = new TextInBox("Identifier",80,20);
+                tree.addChild(structnode,idtoken);
+                tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
+
                 advance();
                 System.out.println("Strussdsdct i am her");
 
                 if (match("Delimiter \\{")) {
+                    tree.addChild(structnode,new TextInBox(getTokenData(),80,20));
                     System.out.println("Struct i am her");
                     advance();
-                    struct_var_declaration_list();
+                    struct_var_declaration_list(structnode);
                     if (match("Delimiter \\}")) {
+                        tree.addChild(structnode,new TextInBox(getTokenData(),80,20));
                         advance();
                         if (match("Delimiter ;")) {
+                            tree.addChild(structnode,new TextInBox(getTokenData(),80,20));
                             advance();
                             System.out.println("Struct declaration");
                         } else {
@@ -734,10 +747,10 @@ public class SyntaxAnalyzer {
             advance();
             if (match("Delimiter \\(")) {
                 advance();
-                //expression();
+                expression(parentNode);
                 if (match("Delimiter \\)")) {
                     advance();
-                    //statement();
+                    statement(parentNode);
                 } else {
                     System.out.println("Syntax Error missing )");
                 }
@@ -745,9 +758,11 @@ public class SyntaxAnalyzer {
                 System.out.println("Syntax Error missing (");
             }
         } else if (match("Keyword for")) {
-            TextInBox forstmt = new TextInBox("For Statement",80,20);
+            TextInBox forstmt = new TextInBox("For statment ",100,20);
             tree.addChild(parentNode,forstmt);
-            tree.addChild(forstmt,new TextInBox(getTokenData(),80,20));
+
+            tree.addChild(forstmt,new TextInBox(getTokenData(),100,20));
+    
             advance();
             if (match("Delimiter \\(")) {
                 tree.addChild(forstmt,new TextInBox(getTokenData(),80,20));
@@ -755,16 +770,19 @@ public class SyntaxAnalyzer {
                 advance();
 
                 if (match(TYPE_SPECIFIER)){
+                    TextInBox typespecifier = new TextInBox("Type Specifier",80,20);
+                    tree.addChild(forstmt,typespecifier);
+                    tree.addChild(typespecifier,new TextInBox(getTokenData(),80,20));
 
-                    tree.addChild(forstmt,new TextInBox(getTokenData(),80,20));
+
 
                     advance();
                     if (match(IDENTIFIER)){
 
-                        tree.addChild(forstmt,new TextInBox(getTokenData(),80,20));
-                        advance();
 
-                       // var_declaration();
+
+                        var_declaration(forstmt);
+
                         retract();
                     } else {
                         System.err.println("Syntax Error missing identifier");
@@ -784,7 +802,6 @@ public class SyntaxAnalyzer {
 
                
                 if (match("Delimiter ;")) {
-                    tree.addChild(forstmt,new TextInBox(getTokenData(),80,20));
                     advance();
                     expression(forstmt);
 
@@ -867,10 +884,10 @@ public class SyntaxAnalyzer {
         }
     }
 
-    private void struct_var_declaration_list() {
+    private void struct_var_declaration_list(TextInBox parentNode) {
         if (match(TYPE_SPECIFIER)) {
-            declaration(root);
-            struct_var_declaration_list();
+            declaration(parentNode);
+            struct_var_declaration_list(parentNode);
         } else {
             return;
         }
