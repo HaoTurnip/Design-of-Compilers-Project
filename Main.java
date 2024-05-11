@@ -1,11 +1,14 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Main extends JFrame {
 
@@ -21,37 +24,49 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Change background and font colors
-        Color background = new Color(230, 230, 230);
-        Color textForeground = new Color(50, 50, 50);
+        Color background = new Color(0, 0, 0);
+        Color textForeground = new Color(0, 255, 0);
+        Color buttonBackground = new Color(0, 128, 0);
+        Color buttonForeground = Color.WHITE;
+        Color scrollBarColor = new Color(0, 255, 0);
 
         inputTextArea = new JTextArea(15, 50);
         inputTextArea.setBackground(background);
         inputTextArea.setForeground(textForeground);
-        inputTextArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        inputTextArea.setFont(new Font("Minecraft", Font.PLAIN, 16));
+        inputTextArea.setCaretColor(Color.GREEN);
 
         outputTextArea = new JTextArea(15, 50);
         outputTextArea.setEditable(false);
         outputTextArea.setBackground(background);
         outputTextArea.setForeground(textForeground);
-        outputTextArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        outputTextArea.setFont(new Font("Minecraft", Font.PLAIN, 16));
 
-        analyzeButton = new JButton("Analyze" );
-        createParseTree = new JButton("Create Parse Tree");
+
+
+        analyzeButton = new JButton("Tokenize this");
+        createParseTree = new JButton("Parse this");
         analyzeButton.setSize(30, 30);
         createParseTree.setSize(30, 30);
 
-
         // Change button colors and font
-        analyzeButton.setBackground(new Color(100, 150, 220));
-        analyzeButton.setForeground(Color.WHITE);
-        analyzeButton.setFont(new Font("Arial", Font.BOLD, 12)); // Adjust font size
+        analyzeButton.setBackground(buttonBackground);
+        analyzeButton.setForeground(buttonForeground);
+        analyzeButton.setFont(new Font("Minecraft", Font.BOLD, 18)); // Adjust font size
 
-        createParseTree.setBackground(new Color(100, 150, 220));
-        createParseTree.setForeground(Color.WHITE);
-        createParseTree.setFont(new Font("Arial", Font.BOLD, 12)); // Adjust font size
+        createParseTree.setBackground(buttonBackground);
+        createParseTree.setForeground(buttonForeground);
+        createParseTree.setFont(new Font("Minecraft", Font.BOLD, 18)); // Adjust font size
 
         JScrollPane inputScrollPane = new JScrollPane(inputTextArea);
+        inputScrollPane.getVerticalScrollBar().setBackground(scrollBarColor);
+        inputScrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(10, Integer.MAX_VALUE));
+        inputScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
         JScrollPane outputScrollPane = new JScrollPane(outputTextArea);
+        outputScrollPane.getVerticalScrollBar().setBackground(scrollBarColor);
+        outputScrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(10, Integer.MAX_VALUE));
+        outputScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         analyzeButton.addActionListener(e -> {
             analyzeInput();
@@ -65,25 +80,25 @@ public class Main extends JFrame {
         });
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(3, 1, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel.setLayout(new BorderLayout());
         panel.setBackground(background);
 
         JPanel inputPanel = new JPanel(new BorderLayout());
-        inputPanel.add(new JLabel("Input"), BorderLayout.NORTH);
         inputPanel.add(inputScrollPane, BorderLayout.CENTER);
 
         JPanel outputPanel = new JPanel(new BorderLayout());
-        outputPanel.add(new JLabel("Output"), BorderLayout.NORTH);
         outputPanel.add(outputScrollPane, BorderLayout.CENTER);
 
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 1, 0, 0));
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        buttonPanel.setBackground(background);
         buttonPanel.add(analyzeButton);
         buttonPanel.add(createParseTree);
 
-        panel.add(inputPanel);
-        panel.add(outputPanel);
-        panel.add(buttonPanel);
+        panel.add(inputPanel, BorderLayout.WEST);
+        panel.add(outputPanel, BorderLayout.EAST);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+ 
 
         getContentPane().add(panel);
         pack();
@@ -93,7 +108,7 @@ public class Main extends JFrame {
         redirectConsoleOutput();
 
         // Initialize file
-        file = new File("/Users/kareem/Documents/Design-of-Compilers-Project/input.c");
+        file = new File("input.c"); // Relative path
 
         // Load content of file into inputTextArea
         loadFileContent();
@@ -137,6 +152,8 @@ public class Main extends JFrame {
         // Call the lexer method to tokenize the content of inputTextArea
         tokens = new ArrayList<>(LexicalAnalyzer.lexicalAnalyzer(inputTextArea.getText()));
 
+        List<String> symbolTable = LexicalAnalyzer.symbolTable;
+
         // Print the tokens to the outputTextArea
         for (LexicalAnalyzer.Token token : tokens) {
             outputTextArea.append("Token: " + token.type + ", Value: " + token.value + "\n");
@@ -146,6 +163,13 @@ public class Main extends JFrame {
                 outputTextArea.append("\n");
             }
         }
+
+        outputTextArea.append("----------------Symbol Table---------------\n");
+        for (int i = 0; i < symbolTable.size(); ++i) {
+            outputTextArea.append("Identifier: " + symbolTable.get(i) + ", Index: " + i + "\n");
+        }
+
+        //print the symbol table
     }
 
     private void createParseTree() {
@@ -176,6 +200,6 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new Main());
+        SwingUtilities.invokeLater(Main::new);
     }
 }
