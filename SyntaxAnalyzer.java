@@ -297,7 +297,6 @@ public class SyntaxAnalyzer {
 
       private void program() {
         declaration_list();        
-         tree.addChild(root,new TextInBox("EOF",80,20));
 
 
         // Setup the tree layout configuration
@@ -619,7 +618,7 @@ public class SyntaxAnalyzer {
         } else if (match("Keyword return")) {
             return_statement(parentNode);
         } else if (match("Delimiter \\{")) {
-            compound_stmt(parentNode);
+            compound_stmt(stament);
         } else {
             System.err.println("Syntax Error missing statement");
             System.exit(1); // Exit with error code 1

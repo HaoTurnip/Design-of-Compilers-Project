@@ -1,4 +1,7 @@
 int main(){
-int x;
-
+if(x>3){
+int x =3;
+} else{
+int x =4 ;
+}
 }
