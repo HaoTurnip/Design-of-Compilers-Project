@@ -1,3 +1,4 @@
 int main(){
-intx;
+int x;
+
 }

@@ -561,7 +561,9 @@ public class SyntaxAnalyzer {
             tree.addChild(compoundstmt, new TextInBox(getTokenData(),80,20));
             System.out.println("Compound statement");
             advance();
-          //  statement_list(compoundstmt);
+            System.out.println("Compound statement  "+ tokens.get(currentTokenIndex).value);
+            // int
+            statement_list(compoundstmt);
             if (match("Delimiter \\}")) {
                 tree.addChild(compoundstmt, new TextInBox(getTokenData(),80,20));
 
@@ -569,6 +571,8 @@ public class SyntaxAnalyzer {
                 advance();
                 System.out.println("Compound statement done");
             } else {
+                System.out.println("Compound statement  "+ tokens.get(currentTokenIndex).value);
+
                 System.err.println("Syntax Error missing }");
             }
         } else {
@@ -581,9 +585,8 @@ public class SyntaxAnalyzer {
     private void statement_list(TextInBox parentNode)  {
         if (match(TYPE_SPECIFIER) || match(IDENTIFIER) || match("Keyword if") || match("Keyword while") || match("Keyword for") || match("Keyword do") || match("Keyword return") || match("Delimiter \\{" )) {
             System.out.println("---------------------------------------------------------------------------Statement list");
-            TextInBox stmtlist = new TextInBox("Statement List",80,20);
-            tree.addChild(parentNode,stmtlist);
-            statement(stmtlist);
+
+            statement(parentNode);
             statement_list(parentNode);
         } else {
             return;
