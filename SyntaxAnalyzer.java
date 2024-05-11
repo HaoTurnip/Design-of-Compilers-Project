@@ -371,8 +371,7 @@ public class SyntaxAnalyzer {
 
                 } else if (match("Delimiter \\(")) {
                     System.out.println("Function declaration in var dec");
-                    currentTokenIndex = 0;
-
+                    retract();
                     fun_declaration(decl);
              
                 }else {
@@ -456,25 +455,25 @@ public class SyntaxAnalyzer {
     }
 
     private void fun_declaration(TextInBox parentNode) {
+        TextInBox funnode = new TextInBox("Function Declaration",80,20);
 
-        if (match(TYPE_SPECIFIER)) {
+        tree.addChild(parentNode,funnode);
 
-            advance();
-            if (match(IDENTIFIER)) {
+      if (match(IDENTIFIER)) {
                 TextInBox idtoken = new TextInBox("Identifier",80,20);
-                tree.addChild(parentNode,idtoken);
+                tree.addChild(funnode,idtoken);
                 tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
                 advance();
                 if (match("Delimiter \\(")) {
 
-                    tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+                    tree.addChild(funnode,new TextInBox(getTokenData(),80,20));
                     advance();
-                    params();
+                   params(parentNode);
                     if (match("Delimiter \\)")) {
                         
-                        tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+                        tree.addChild(funnode,new TextInBox(getTokenData(),80,20));
                         advance();
-                        //compound_stmt();
+                        compound_stmt(funnode);
                     } else {
                         System.out.println("Syntax Error missing )");
                         System.exit(1); // Exit with error code 1
@@ -491,16 +490,14 @@ public class SyntaxAnalyzer {
 
             }
 
-        } else {
-            System.out.println("Syntax Error missing type specifier");
-            System.exit(1); // Exit with error code 1
-
-        }
+        
     }
 
-    private void params() {
+    private void params(TextInBox parentNode) {
         if (match(TYPE_SPECIFIER)) {
-            param_list();
+
+          
+            param_list(parentNode);
         } else if (match("Keyword void")) {
             advance();
         } else {
@@ -508,24 +505,36 @@ public class SyntaxAnalyzer {
         }
     }
 
-    private void param_list() {
-        param();
+    private void param_list(TextInBox parentNode) {
+        param(parentNode);
         if (match("Delimiter ,")) {
             advance();
-            param_list();
+            param_list(parentNode);
         } else {
             return;
         }
     }
 
-    private void param() {
+    private void param(TextInBox parentNode) {
         if (match(TYPE_SPECIFIER)) {
+
+            TextInBox typespecifier = new TextInBox("Type Specifier",80,20);
+            tree.addChild(parentNode,typespecifier);
+            tree.addChild(typespecifier,new TextInBox(getTokenData(),80,20));
+
+
             advance();
             if (match(IDENTIFIER)) {
+                TextInBox idtoken = new TextInBox("Identifier",80,20);
+                tree.addChild(parentNode,idtoken);
+                tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
+
                 advance();
                 if (match("Delimiter \\[")) {
+                    tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
                     advance();
                     if (match("Delimiter \\]")) {
+                        tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
                         advance();
                     } else {
                         System.out.println("Syntax Error missing ]");
@@ -545,12 +554,18 @@ public class SyntaxAnalyzer {
         }
     }
 
-    private void compound_stmt() {
+    private void compound_stmt(TextInBox parentNode) {
+        TextInBox compoundstmt = new TextInBox("Compound Statement",80,20);
+        tree.addChild(parentNode,compoundstmt);
         if (match("Delimiter \\{")) {
+            tree.addChild(compoundstmt, new TextInBox(getTokenData(),80,20));
             System.out.println("Compound statement");
             advance();
-            //statement_list();
+          //  statement_list(compoundstmt);
             if (match("Delimiter \\}")) {
+                tree.addChild(compoundstmt, new TextInBox(getTokenData(),80,20));
+
+
                 advance();
                 System.out.println("Compound statement done");
             } else {
@@ -569,7 +584,7 @@ public class SyntaxAnalyzer {
             TextInBox stmtlist = new TextInBox("Statement List",80,20);
             tree.addChild(parentNode,stmtlist);
             statement(stmtlist);
-            // statement_list();
+            statement_list(parentNode);
         } else {
             return;
         }
@@ -586,7 +601,6 @@ public class SyntaxAnalyzer {
 
             advance();
             if (match(IDENTIFIER)){
-            advance();  
             var_declaration(stament);
             } else {
                 System.err.println("Syntax Error missing identifier");
@@ -602,7 +616,7 @@ public class SyntaxAnalyzer {
         } else if (match("Keyword return")) {
             return_statement(parentNode);
         } else if (match("Delimiter \\{")) {
-            compound_stmt();
+            compound_stmt(parentNode);
         } else {
             System.err.println("Syntax Error missing statement");
             System.exit(1); // Exit with error code 1
@@ -682,10 +696,9 @@ public class SyntaxAnalyzer {
     private void selection_stmt(TextInBox parentNode) {
         if (match("Keyword if")) {
             TextInBox ifstmt = new TextInBox("if Statement",100,20);
-            TextInBox idtoken = new TextInBox("Keyword",100,20);
             tree.addChild(parentNode,ifstmt);
-            tree.addChild(ifstmt,idtoken);
-            tree.addChild(idtoken,new TextInBox(getTokenData(),100,20));
+
+            tree.addChild(ifstmt,new TextInBox(getTokenData(),100,20));
     
             advance();
             if (match("Delimiter \\(")) {
@@ -694,9 +707,11 @@ public class SyntaxAnalyzer {
                 advance();
                 expression(ifstmt);
                 if (match("Delimiter \\)")) {
+                    tree.addChild(ifstmt,new TextInBox(getTokenData(),100,20));
                     advance();
                     statement(ifstmt);
                     if (match("Keyword else")) {
+                        tree.addChild(ifstmt,new TextInBox(getTokenData(),100,20));
                         advance();
                         statement(ifstmt);
                     }
@@ -1104,6 +1119,7 @@ public class SyntaxAnalyzer {
         }
     }
 
+    
     private void multiplicative_expression(TextInBox parentNode)
     {
         TextInBox expressionnode = new TextInBox("Multiplicative Exp",100,20);
@@ -1216,7 +1232,6 @@ public class SyntaxAnalyzer {
             }
         }
     }
-
 
 
 
@@ -1393,7 +1408,7 @@ public class SyntaxAnalyzer {
         // Check for more arguments separated by commas
         if (match("Delimiter ,")) {
             tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
-            advance(); // Consume the comma token
+            advance(); 
             args_list(parentNode); // Parse the next argument
         }
     }
