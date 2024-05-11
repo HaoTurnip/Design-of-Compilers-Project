@@ -344,7 +344,6 @@ public class SyntaxAnalyzer {
         TextInBox decl = new TextInBox("decleration",140,40);
         tree.addChild(decnode,decl);
 
-        TextInBox keywordnode = new TextInBox("Keyword",140,40);
 
 
         if (match(TYPE_SPECIFIER) && !tokens.get(currentTokenIndex).value.equals("struct") && !tokens.get(currentTokenIndex).value.equals("enum") && !tokens.get(currentTokenIndex).value.equals("typedef") ) {
@@ -358,11 +357,8 @@ public class SyntaxAnalyzer {
 
                 advance();
               if (match("Delimiter \\[")) {
-
-                TextInBox arraydec = new TextInBox("Array declaration",140,40);
-                tree.addChild(decl,arraydec);
-                tree.addChild(arraydec,new TextInBox(getTokenData(),140,40));
-                    advance();
+                retract();
+                array_declaration(decl);
                     // array declaration       
                 } else if (match("Operator \\*")) {
 
@@ -411,6 +407,91 @@ public class SyntaxAnalyzer {
   
     }
     
+
+    private void array_declaration(TextInBox parentNode) {
+        TextInBox arraynode = new TextInBox("Array Declaration",140,40);
+        tree.addChild(parentNode,arraynode);
+
+        TextInBox Identifier = new TextInBox("Identifier",140,40);
+        tree.addChild(arraynode,Identifier);
+        tree.addChild(Identifier,new TextInBox(getTokenData(),140,40));
+
+
+        advance();
+
+        
+        if (match("Delimiter \\[")) {
+            tree.addChild(arraynode,new TextInBox(getTokenData(),140,40));
+            
+            advance();
+
+            array_arg(arraynode);
+
+            if (match("Delimiter \\]")) {
+                tree.addChild(arraynode,new TextInBox(getTokenData(),140,40));
+                advance();
+                if (match("Delimiter ;")) {
+                    tree.addChild(arraynode,new TextInBox(getTokenData(),140,40));
+                    advance();
+                    //system.out.println("Array declaration done");
+                } else if (match("Operator =")){
+                    tree.addChild(arraynode,new TextInBox(getTokenData(),140,40));
+                    advance();
+                    expression(arraynode);
+                    if (match("Delimiter ;")) {
+                        tree.addChild(arraynode,new TextInBox(getTokenData(),140,40));
+                        advance();
+                        //system.out.println("Array declaration done");
+                    } else {
+                        System.out.println("Syntax Error missing ;");
+                        System.exit(1); // Exit with error code 1
+
+                    }
+                } 
+                
+                else {
+                    System.out.println("Syntax Error missing ;");
+                    System.exit(1); // Exit with error code 1
+
+                }
+            } else {
+                System.out.println("Syntax Error missing ]");
+                System.exit(1); // Exit with error code 1
+                
+            }
+
+            
+            
+        } else {
+            System.out.println("Syntax Error missing [");
+        }
+    }
+
+    private void array_arg(TextInBox parentNode) {
+        if (match(NUM)) {
+            TextInBox num = new TextInBox("Number",140,40);
+            tree.addChild(parentNode,num);
+            tree.addChild(num,new TextInBox(getTokenData(),140,40));
+            advance();
+
+        }else if (match(IDENTIFIER)) {
+            TextInBox id = new TextInBox("Identifier",140,40);
+            tree.addChild(parentNode,id);
+            tree.addChild(id,new TextInBox(getTokenData(),140,40));
+            advance();
+
+        } else if (match("Delimiter \\]") ) {
+            
+            System.out.println("Syntax Error missing number or identifier");
+            System.exit(1); // Exit with error code 1
+        }
+        else {
+            System.out.println("Syntax Error missing number or identifier");
+        }
+       
+    }
+
+
 
 
     private void struct_declaration(TextInBox parentNode) {
