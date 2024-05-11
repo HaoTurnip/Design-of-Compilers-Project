@@ -636,6 +636,7 @@ public class SyntaxAnalyzer {
 
     private void expression_stmt(TextInBox parentNode) {
 
+        // id(ssd);
 
        if (match(IDENTIFIER))
        {
@@ -645,62 +646,21 @@ public class SyntaxAnalyzer {
         tree.addChild(expressionstmt,idtoken);
         tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
 
-        advance();  
 
-        if (match("Operator =")) {
-            advance();
-            expression(expressionstmt);
-            
-        }else if (match("Delimiter \\[")) {
-            advance();
-            expression(expressionstmt);
-            if (match("Delimiter \\]")) {
-                advance();
-            } else {
-                System.out.println("Syntax Error missing ]");
-            }
-        } else if (match("Delimiter \\(")) {
-            advance();
-            args_opt(expressionstmt);
-            if (match("Delimiter \\)")) {
-                advance();
-            } else {
-                System.out.println("Syntax Error missing )");
-                System.exit(1);
-            }
-        } else if (match("Operator \\+\\+") || match("Operator --")) {
-            advance();
-        } else if (match("Delimiter \\.")) {
-            advance();
-            if (match(IDENTIFIER)) {
-                advance();
-            } else {
-                System.out.println("Syntax Error missing identifier");
-            }
-        } else if (match("Operator ->")) {
-            advance();
-            if (match(IDENTIFIER)) {
-                advance();
-            } else {
-                System.out.println("Syntax Error missing identifier");
-            }
-        } else if (match("Operator \\+\\+")) {
-            advance();
-        } else if (match("Operator --")) {
-            advance();
-        }  else {
-            System.out.println("Syntax Error missing expression");
-            System.exit(1);
-            
-        }
+        expression(expressionstmt);
+
+        advance();
 
         if (match("Delimiter ;")) {
+            tree.addChild(expressionstmt,new TextInBox(getTokenData(),80,20));
             advance();
         } else {
             System.out.println("Syntax Error missing ;");
-            System.exit(1);
+            
         }
        }
+
+      
     }
 
     private void selection_stmt(TextInBox parentNode) {
