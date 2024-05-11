@@ -3,7 +3,7 @@ import java.util.List;
 import org.abego.treelayout.TreeLayout;
 import org.abego.treelayout.demo.TextInBox;
 import org.abego.treelayout.util.DefaultTreeForTreeLayout;
-
+import org.w3c.dom.Text;
 /**
  TEST case1 : printf("Hello World");
 
@@ -447,8 +447,7 @@ public class SyntaxAnalyzer {
                         System.exit(1); // Exit with error code 1
 
                     }
-                } 
-                
+                }                 
                 else {
                     System.out.println("Syntax Error missing ;");
                     System.exit(1); // Exit with error code 1
@@ -472,12 +471,6 @@ public class SyntaxAnalyzer {
             TextInBox num = new TextInBox("Number",140,40);
             tree.addChild(parentNode,num);
             tree.addChild(num,new TextInBox(getTokenData(),140,40));
-            advance();
-
-        }else if (match(IDENTIFIER)) {
-            TextInBox id = new TextInBox("Identifier",140,40);
-            tree.addChild(parentNode,id);
-            tree.addChild(id,new TextInBox(getTokenData(),140,40));
             advance();
 
         } else if (match("Delimiter \\]") ) {
@@ -1343,9 +1336,38 @@ public class SyntaxAnalyzer {
 
             advance();
             
-        } else {
+        }else if (match("Delimiter \\{")){
+            tree.addChild(parentNode,new TextInBox(getTokenData(),140,40));
+
+            advance();
+            expression(parentNode);
+
+
+            while (match("Delimiter \\,")) {
+                tree.addChild(parentNode,new TextInBox(getTokenData(),140,40));
+
+                advance();
+                expression(parentNode);
+                
+            }
+            if (match("Delimiter \\}")){
+                tree.addChild(parentNode,new TextInBox(getTokenData(),140,40));
+
+                advance();
+            }
+            else {
+                System.err.println("Syntax error: Expected '}' after unary operator" + tokens.get(currentTokenIndex).value);
+                System.exit(1);
+            }
+
+           
+        
+        }
+        
+        else {
+            
             // Error handling: Expected primary expression or unary operator
-            System.err.println("Syntax error: Expected primary expression or unary operator");
+            System.err.println("Syntax error: Expected primary expression or unary operator" + tokens.get(currentTokenIndex).value );
             System.exit(1);
 
             return;
@@ -1403,15 +1425,20 @@ public class SyntaxAnalyzer {
 
                inParenthesis = true; arrayretract = true;
                 retract();
-                // array_call(expressionnode);
+                
+        TextInBox arraycall = new TextInBox("Array Call",140,40);
+        tree.addChild(expressionnode,arraycall);
+        
+                array_call(arraycall);
 
 
-            }             else {
+            } else {
+                currentTokenIndex = currentIndex; // Reset index
+
                 TextInBox idtoken2 = new TextInBox("Identifier",140,40);
                 tree.addChild(expressionnode,idtoken2);
-                tree.addChild(idtoken2,new TextInBox(tokens.get(currentIndex).value,140,40));
+                tree.addChild(idtoken2,new TextInBox(getTokenData(),140,40));
                 // It's a regular identifier
-                currentTokenIndex = currentIndex; // Reset index
                 // Handle regular identifier logic here
 
                 //system.out.println("Parsed identifier: " + tokens.get(currentIndex).value);
@@ -1546,5 +1573,122 @@ public class SyntaxAnalyzer {
         }
     }
  
+
+    private void array_call(TextInBox parentNode) {
+
+        // Parse the identifier
+        if (match(IDENTIFIER))
+        {
+            TextInBox idtoken = new TextInBox("Identifier",80,20);
+            tree.addChild(parentNode,idtoken);
+            tree.addChild(idtoken,new TextInBox(getTokenData(),80,20));
+
+            advance(); // Consume the identifier token
+        } else {
+            // Error handling: Expected an identifier for array call
+            System.err.println("Syntax error: Expecting an identifier for array call");
+            return;
+        }
+
+        // Parse array dimensions
+        parse_array_dimensions_in_call(parentNode);
+
+
+     //   System.out.println("Current array: " + tokens.get(currentTokenIndex).data);
+
+        if(match("Operator ="))
+        {
+            tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+            advance();
+
+            if(match("Charachter Literal") || match("String Literal"))
+            {
+                if(match("Charachter Literal"))
+                {
+                    TextInBox charc = new TextInBox("Character",80,20);
+                    tree.addChild(parentNode,charc);
+                    tree.addChild(charc,new TextInBox(getTokenData(),80,20));
+                }
+                else
+                {
+                    TextInBox string = new TextInBox("String Literal",80,20);
+                    tree.addChild(parentNode,string);
+                    tree.addChild(string,new TextInBox(getTokenData(),80,20));
+                }
+
+                advance();
+
+            }
+            else
+            {
+
+                expression(parentNode);
+
+                if(arrayretract)
+                {
+
+                    retract();
+                    arrayretract = false;
+                }
+
+
+
+            }
+
+            if(match("Delemiter ;"))
+            {
+                tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+                advance();
+                return;
+            }
+            else
+            {
+                System.err.println("Syntax error: Expecting a semicolon for an array call");
+                System.exit(0);
+            }
+        }
+        // Check for semicolon to terminate the array call statement
+        else if (!match("Delimeter ;")){
+            // Error handling: Expected semicolon to terminate array call
+            if(!inParenthesis)
+                System.err.println("Syntax error: Expected ';' to terminate array call");
+        } else {
+            tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+            advance(); // Consume the semicolon token
+        }
+    }
+
+    private void parse_array_dimensions_in_call(TextInBox parentNode) {
+        // Parse array dimensions (square brackets)
+        if (match("Delimiter \\["))
+        {
+            tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+            advance(); // Consume the left square bracket
+
+            // Parse the expression inside square brackets
+            expression(parentNode); // Assuming you have a method to parse expressions
+
+            // Check for right square bracket
+            if (match("Delimiter \\]"))
+            {
+                tree.addChild(parentNode,new TextInBox(getTokenData(),80,20));
+                advance(); // Consume the right square bracket
+
+                if (match("Delimiter \\["))
+                {
+
+                    parse_array_dimensions_in_call(parentNode);
+                }
+            } else {
+                // Error handling: Expected right square bracket
+                System.err.println("Syntax error: Expected ']' in array dimension for array call");
+                return;
+            }
+        }
+    }
+
+
+
+
 
 }
