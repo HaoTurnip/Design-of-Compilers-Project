@@ -352,6 +352,12 @@ public class SyntaxAnalyzer {
             tree.addChild(typespecifier,new TextInBox(getTokenData(),140,40));
 
             advance();
+            if(match("Operator \\*")){
+                while (match("Operator \\*")) {
+                    tree.addChild(decl,new TextInBox(getTokenData(),140,40));
+                    advance();
+                }
+            }
           if (match(IDENTIFIER)) {
 
 
@@ -692,10 +698,36 @@ public class SyntaxAnalyzer {
             tree.addChild(stament,typespecifier);
             tree.addChild(typespecifier,new TextInBox(getTokenData(),140,40));
 
+
             advance();
-            if (match(IDENTIFIER)){
-            var_declaration(stament);
-            } else {
+
+            if(match("Operator \\*")){
+                while (match("Operator \\*")) {
+                    tree.addChild(stament,new TextInBox(getTokenData(),140,40));
+                    advance();
+                }
+            }
+
+            if (match(IDENTIFIER))
+            {
+                advance();
+                if(match("Delimiter \\[")) {
+                    retract();
+                    array_declaration(stament);
+                }
+                else
+                {
+                    retract();
+                    var_declaration(stament);
+                }
+
+
+
+            }
+
+
+
+            else {
                 System.err.println("Syntax Error missing identifier");
             }
         } else if (match(IDENTIFIER)) {
@@ -730,6 +762,10 @@ public class SyntaxAnalyzer {
         tree.addChild(idtoken,new TextInBox(getTokenData(),140,40));
 
 
+        advance();
+        if(match("Operator =")){ advance();}
+        else {retract();}
+        //result = a + b
         expression(expressionstmt);
 
 
@@ -927,10 +963,12 @@ public class SyntaxAnalyzer {
 
 
             if (match("Delimiter ;")) {
+                tree.addChild(returnstmt,new TextInBox(getTokenData(),140,40));
                 advance();
             } else {
-                expression(parentNode);
+                expression(returnstmt);
                 if (match("Delimiter ;")) {
+                    tree.addChild(returnstmt,new TextInBox(getTokenData(),140,40));
                     advance();
                 } else {
                     System.out.println("Syntax Error missing ; 777");
@@ -1243,9 +1281,19 @@ public class SyntaxAnalyzer {
             primary_expression(parentNode); 
 
         } else if (match("Operator \\+") || match("Operator -") || match("Operator ~") || match("Operator !") || match("Operator \\*") || match("Operator &") || match("Operator sizeof")) {
+
+
+
             tree.addChild(parentNode,new TextInBox(getTokenData(),140,40));
 
             advance(); // Consume the unary operator
+
+            if(match("Operator \\*")){
+                while (match("Operator \\*")) {
+                    tree.addChild(parentNode,new TextInBox(getTokenData(),140,40));
+                    advance();
+                }
+            }
 
             // Check if there is a valid token after the unary operator
             if (match(IDENTIFIER) || match(NUM) || match("Delimiter \\(")) {
@@ -1253,7 +1301,7 @@ public class SyntaxAnalyzer {
                 unary_expression(parentNode);
             } else {
                 // Error handling: Expected identifier, number, or left parenthesis after unary operator
-                System.err.println("Syntax error: Expected identifier, number, or expression after unary operator");
+                System.err.println("Syntax error: Expected identifier, number, or expression after unary operator " + tokens.get(currentTokenIndex).value);
                 System.exit(1);
 
                 return;
@@ -1315,6 +1363,7 @@ public class SyntaxAnalyzer {
                 return; // NO ITS NEEDED
 
             }
+
             else {
 
                 // Error handling: Expected identifier after unary operator
@@ -1363,6 +1412,7 @@ public class SyntaxAnalyzer {
            
         
         }
+
         
         else {
             
